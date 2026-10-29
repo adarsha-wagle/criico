@@ -4,3 +4,5 @@ export const PLAYER_ROLES = [
   "All-rounder",
   "Wicketkeeper",
 ] as const;
+
+export const USER_ROLES = ["admin", "viewer"] as const;

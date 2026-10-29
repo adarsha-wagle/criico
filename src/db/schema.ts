@@ -1,4 +1,4 @@
-import { PLAYER_ROLES } from "@/config/constant";
+import { PLAYER_ROLES, USER_ROLES } from "@/config/constant";
 import {
   bigint,
   pgEnum,
@@ -6,9 +6,11 @@ import {
   timestamp,
   text,
   integer,
+  uuid,
 } from "drizzle-orm/pg-core";
 
-export const playerRoleEnums = pgEnum("player_role", PLAYER_ROLES);
+export const playerRoleEnum = pgEnum("player_role", PLAYER_ROLES);
+export const userRoleEnum = pgEnum("user_role", USER_ROLES);
 
 const timestamps = {
   createdAt: timestamp("created_at", { withTimezone: true })
@@ -21,15 +23,22 @@ const timestamps = {
 };
 
 export const players = pgTable("players", {
-  id: bigint("id", { mode: "number" })
-    .primaryKey()
-    .generatedByDefaultAsIdentity(),
+  id: uuid("id").primaryKey().defaultRandom(),
 
   name: text("name").notNull(),
-  role: playerRoleEnums("role").notNull(),
+  role: playerRoleEnum("role").notNull(),
   basePrice: integer("base_price").notNull().default(0),
   matchesPlayed: integer("matches_played").notNull().default(0),
   totalRuns: integer("total_runs").notNull().default(0),
   totalWickets: integer("total_wickets").notNull().default(0),
+  ...timestamps,
+});
+
+export const users = pgTable("users", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(), // store lower-cased
+  passwordHash: text("password_hash").notNull(), // bcrypt
+  role: userRoleEnum("role").notNull().default("admin"),
   ...timestamps,
 });

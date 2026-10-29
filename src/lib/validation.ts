@@ -17,3 +17,17 @@ export const playerInputSchema = z.object({
 });
 
 export type TPlayerInput = z.infer<typeof playerInputSchema>;
+
+export interface ValidationFailure {
+  message: string; // first error, for the toast
+  fieldErrors: Record<string, string[] | undefined>; // per-field, for inline messages
+}
+
+export function formatZodError(error: z.ZodError): ValidationFailure {
+  const { formErrors, fieldErrors } = z.flattenError(error);
+  const message =
+    formErrors[0] ??
+    Object.values(fieldErrors).flat().find(Boolean) ??
+    "Invalid input";
+  return { message, fieldErrors };
+}

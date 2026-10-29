@@ -4,7 +4,8 @@ import { asc } from "drizzle-orm";
 import { db } from "@/db";
 import { players } from "@/db/schema";
 
-import { playerInputSchema } from "@/lib/validation";
+import { formatZodError, playerInputSchema } from "@/lib/validation";
+import { errorResponse, readJson } from "@/lib/api";
 
 /* GET /api/players?role=Bowler ------------------------------------- */
 
@@ -17,14 +18,15 @@ export async function GET(req: NextRequest) {
 /* POST /api/players ------------------------------------------------ */
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  const body = await readJson(req);
   if (!body.ok) return body.response;
 
-  // Rejects negative runs/wickets/price, unknown roles, empty fields, etc.
+  // Validate inputs
   const parsed = playerInputSchema.safeParse(body.value);
 
   if (!parsed.success) {
-    return;
+    const { message, fieldErrors } = formatZodError(parsed.error);
+    return errorResponse(400, { error: message, fieldErrors });
   }
 
   try {
