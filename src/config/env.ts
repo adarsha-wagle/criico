@@ -7,6 +7,7 @@ const envSchema = z.object({
     .default("development"),
 
   DATABASE_URL: z.string().min(1, "DATABASE URL IS REQQUIRED"),
+  DATABASE_URL_UNPOOLED: z.string().optional(),
 });
 
 export const env = envSchema.parse(process.env);

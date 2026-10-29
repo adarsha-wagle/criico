@@ -1,0 +1,1 @@
+CREATE TYPE "public"."player_role" AS ENUM('Batsman', 'Bowler', 'All-rounder', 'Wicketkeeper');
