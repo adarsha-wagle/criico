@@ -1,6 +1,5 @@
 import { PLAYER_ROLES, USER_ROLES } from "@/config/constant";
 import {
-  bigint,
   pgEnum,
   pgTable,
   timestamp,
@@ -24,7 +23,6 @@ const timestamps = {
 
 export const players = pgTable("players", {
   id: uuid("id").primaryKey().defaultRandom(),
-
   name: text("name").notNull(),
   role: playerRoleEnum("role").notNull(),
   basePrice: integer("base_price").notNull().default(0),
@@ -37,8 +35,8 @@ export const players = pgTable("players", {
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
-  email: text("email").notNull().unique(), // store lower-cased
+  email: text("email").notNull().unique(), // stored lowercase
   passwordHash: text("password_hash").notNull(), // bcrypt
-  role: userRoleEnum("role").notNull().default("admin"),
+  role: userRoleEnum("role").notNull().default("viewer"),
   ...timestamps,
 });
