@@ -4,7 +4,7 @@ import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { players } from "@/db/schema";
 
-import { formatZodError, playerInputSchema } from "@/lib/validation";
+import { formatZodError, playerInputSchema } from "@/lib/validation/player";
 import {
   errorResponse,
   PG,

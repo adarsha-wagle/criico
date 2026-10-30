@@ -5,7 +5,8 @@ import { users } from "@/db/schema";
 import { errorResponse, readJson, successResponse } from "@/lib/api";
 import { setAuthCookie, signToken } from "@/lib/auth";
 import { verifyPassword } from "@/lib/password";
-import { formatZodError, loginSchema } from "@/lib/validation";
+import { loginSchema } from "@/lib/validation/auth";
+import { formatZodError } from "@/lib/validation/shared";
 
 // POST api/auth/login
 export async function POST(req: NextRequest) {

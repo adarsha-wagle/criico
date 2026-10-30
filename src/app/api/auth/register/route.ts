@@ -10,7 +10,8 @@ import {
 } from "@/lib/api";
 import { setAuthCookie, signToken } from "@/lib/auth";
 import { hashPassword } from "@/lib/password";
-import { formatZodError, registerSchema } from "@/lib/validation";
+import { formatZodError } from "@/lib/validation/shared";
+import { registerSchema } from "@/lib/validation/auth";
 
 export async function POST(req: NextRequest) {
   const body = await readJson(req);
