@@ -8,7 +8,8 @@ import {
   VETERAN_MATCH_LIMIT,
   WICKET_WEIGHT,
 } from "@/config/constant";
-import { IImpactScoreBreakdown, IPlayerStats, IRoleRule } from "./types";
+import { IImpactScoreBreakdown, IRoleRule } from "./types";
+import { IPlayerStats } from "./validation/player";
 
 function assertValidStats(stats: IPlayerStats): void {
   for (const field of ["matchesPlayed", "totalRuns", "totalWickets"] as const) {

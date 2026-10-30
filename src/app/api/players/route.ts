@@ -4,7 +4,8 @@ import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { players } from "@/db/schema";
 
-import { formatZodError, playerInputSchema } from "@/lib/validation/player";
+import { playerInputSchema, type TPlayerRole } from "@/lib/validation/player";
+import { formatZodError } from "@/lib/validation/shared";
 import {
   errorResponse,
   PG,
@@ -13,8 +14,7 @@ import {
   requireSession,
   successResponse,
 } from "@/lib/api";
-import { PLAYER_ROLES, type TPlayerRole } from "@/config/constant";
-
+import { PLAYER_ROLES } from "@/config/constant";
 /* GET /api/players?role=Bowler */
 
 export async function GET(req: NextRequest) {

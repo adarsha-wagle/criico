@@ -12,11 +12,9 @@ import {
   successResponse,
 } from "@/lib/api";
 import { calculateImpactBreakdown } from "@/lib/impact-score";
-import {
-  formatZodError,
-  idParamSchema,
-  playerUpdateSchema,
-} from "@/lib/validation/player";
+
+import { idParamSchema, playerUpdateSchema } from "@/lib/validation/player";
+import { formatZodError } from "@/lib/validation/shared";
 
 // `params` is a Promise and must be awaited.
 type Ctx = { params: Promise<{ id: string }> };
