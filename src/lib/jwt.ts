@@ -55,6 +55,7 @@ export async function getSession(): Promise<Session | null> {
 }
 
 export async function setAuthCookie(token: string): Promise<void> {
+  console.log("setting auth cookie");
   const store = await cookies();
   store.set(env.AUTH_COOKIE, token, {
     httpOnly: true, // not readable from JS, so an XSS bug can't steal it

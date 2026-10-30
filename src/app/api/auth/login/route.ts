@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
   }
 
   const token = await signToken({ userId: String(user.id), role: user.role });
+  console.log("setting cookie");
   // Set http-only cookie
   await setAuthCookie(token);
 
