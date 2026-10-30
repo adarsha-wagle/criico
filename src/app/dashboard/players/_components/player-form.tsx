@@ -19,7 +19,7 @@ import {
   createPlayerAction,
   updatePlayerAction,
   type PlayerFormState,
-} from "../actions/player";
+} from "../_actions/players-action";
 import type { TPlayerRole } from "@/lib/validation/player";
 import { PLAYER_ROLES } from "@/config/constant";
 import { ROLE_TEXT } from "@/components/reusables/role-badge";
