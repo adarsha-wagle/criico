@@ -9,7 +9,7 @@ export async function middleware(req: NextRequest) {
   // Verify it
   const session = await verifyToken(token);
 
-  if (process.env.NODE_ENV !== "production") {
+  if (env.NODE_ENV !== "production") {
     console.log(
       `[middleware] ${pathname} | cookie: ${token ? "yes" : "NO"} | valid: ${session ? "yes" : "NO"} | secret length: ${process.env.JWT_SECRET?.length ?? "MISSING"}`,
     );

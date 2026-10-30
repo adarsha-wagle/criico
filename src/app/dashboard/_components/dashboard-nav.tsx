@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, Trophy, Users } from "lucide-react";
+import { LayoutGrid, Trophy, Users, HockeyStick } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/dashboard", label: "Overview", icon: LayoutGrid, exact: true },
   { href: "/dashboard/players", label: "Players", icon: Users },
   { href: "/dashboard/leaderboard", label: "Leaderboard", icon: Trophy },
+
+  { href: "/dashboard/matches", label: "Matches", icon: HockeyStick },
 ] as const;
 
 /** Used by both the desktop sidebar and the mobile sheet, so they never differ. */
