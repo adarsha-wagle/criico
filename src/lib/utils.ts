@@ -1,3 +1,5 @@
+export { cn } from "cn";
+
 import { calculateImpactBreakdown } from "./impact-score";
 import { LeaderboardEntry, ILeaderboardInput } from "./validation/leaderboard";
 
@@ -27,4 +29,22 @@ export function buildLeaderboard<T extends ILeaderboardInput>(
       rank = i + 1;
     return { rank, ...entry };
   });
+}
+
+/**
+ * Only follow ?from= when it's a path on THIS site.
+ * Blocks open redirects like ?from=https://evil.com or ?from=//evil.com.
+ */
+export function safeRedirect(
+  from: string | null | undefined,
+  fallback = "/dashboard",
+): string {
+  if (
+    !from ||
+    !from.startsWith("/") ||
+    from.startsWith("//") ||
+    from.startsWith("/\\")
+  )
+    return fallback;
+  return from;
 }

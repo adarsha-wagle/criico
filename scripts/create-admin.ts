@@ -11,7 +11,7 @@ import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import bcrypt from "bcryptjs";
 import * as schema from "../src/db/schema";
-import { registerSchema } from "../src/lib/validation/player";
+import { registerSchema } from "../src/lib/validation/auth";
 
 const [argEmail, argPassword, argName] = process.argv.slice(2);
 

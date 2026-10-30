@@ -3,8 +3,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getLeaderboard } from "@/lib/queries/leaderboard";
 import { leaderboardQuerySchema } from "@/lib/validation/leaderboard";
-import { PLAYER_ROLES } from "@/config/constant";
 import { TPlayerRole } from "@/lib/validation/player";
+import { PLAYER_ROLES } from "@/config/constant";
 
 export const metadata: Metadata = { title: "Leaderboard · Criico" };
 
