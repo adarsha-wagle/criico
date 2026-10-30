@@ -9,6 +9,13 @@ export const PLAYER_ROLES = [
 
 export const USER_ROLES = ["admin", "viewer"] as const;
 
+export const MATCH_STATUS = [
+  "scheduled",
+  "in_progress",
+  "completed",
+  "draw",
+] as const;
+
 export const RUN_WEIGHT = 1.2;
 export const WICKET_WEIGHT = 20;
 export const ROOKIE_MATCH_LIMIT = 5; // fewer than this -> penalty

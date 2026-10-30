@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { errorResponse, readJson, successResponse } from "@/lib/api";
-import { setAuthCookie, signToken } from "@/lib/auth";
+import { setAuthCookie, signToken } from "@/lib/jwt";
 import { verifyPassword } from "@/lib/password";
 import { loginSchema } from "@/lib/validation/auth";
 import { formatZodError } from "@/lib/validation/shared";

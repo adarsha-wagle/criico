@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getSession } from "@/lib/auth";
+import { getSession } from "@/lib/jwt";
 import { getLeaderboard } from "@/lib/queries/leaderboard";
 import { Brand } from "@/components/reusables/brand";
 import { LeaderboardTable } from "./dashboard/leaderboard/_components/leaderboard-table";
@@ -34,7 +34,7 @@ export default function HomePage() {
       </header>
 
       <main className="flex-1">
-        <section className="border-b">
+        <section>
           <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-[1.1fr_1fr] md:py-16">
             <div className="flex flex-col justify-center">
               <p className="text-sm font-medium uppercase tracking-wide text-primary">
@@ -71,32 +71,11 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-
-        <section className="mx-auto max-w-6xl px-4 py-12">
-          <h2 className="text-xl font-semibold tracking-tight">
-            How the Impact Score is calculated
-          </h2>
-          <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-            The same rules apply to every player. Role multipliers apply to the
-            raw stat before it is scored.
-          </p>
-          <dl className="mt-6 grid border bg-card sm:grid-cols-2">
-            {RULES.map(({ rule, effect }) => (
-              <div
-                key={rule}
-                className="flex flex-col gap-1 border-b p-4 sm:odd:border-r"
-              >
-                <dt className="text-sm font-semibold">{rule}</dt>
-                <dd className="text-sm text-muted-foreground">{effect}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
       </main>
 
       <footer className="border-t bg-card">
         <div className="mx-auto max-w-6xl px-4 py-6 text-sm text-muted-foreground">
-          Criico. Built for the Criico full stack assessment.
+          Criico.
         </div>
       </footer>
     </div>

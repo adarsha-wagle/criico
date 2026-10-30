@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getSession, type Session } from "@/lib/auth";
+import { getSession, type Session } from "@/lib/jwt";
 
 /* ------------------------------------------------------------------ */
 /* Response envelope: every API route returns one of these two shapes  */
@@ -74,7 +74,6 @@ export async function requireSession(
   return { ok: true, value: session };
 }
 
-/** A malformed body should be a 400, not an unhandled 500. */
 export async function readJson(req: NextRequest): Promise<Result<unknown>> {
   try {
     return { ok: true, value: await req.json() };
@@ -86,10 +85,7 @@ export async function readJson(req: NextRequest): Promise<Result<unknown>> {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* Postgres errors                                                     */
-/* ------------------------------------------------------------------ */
-
+// Postgres Errors
 /** Postgres error codes we map to 4xx. Drizzle may wrap the driver error in `cause`. */
 export const PG = {
   CHECK_VIOLATION: "23514",
@@ -100,4 +96,12 @@ export const PG = {
 export function pgErrorCode(err: unknown): string | undefined {
   const e = err as { code?: string; cause?: { code?: string } } | null;
   return e?.code ?? e?.cause?.code;
+}
+
+export function pgConstraint(err: unknown): string | undefined {
+  const e = err as {
+    constraint?: string;
+    cause?: { constraint?: string };
+  } | null;
+  return e?.constraint ?? e?.cause?.constraint;
 }

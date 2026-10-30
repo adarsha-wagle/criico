@@ -1,5 +1,5 @@
 import { successResponse } from "@/lib/api";
-import { clearAuthCookie } from "@/lib/auth";
+import { clearAuthCookie } from "@/lib/jwt";
 
 export async function POST() {
   // Clear The Cookie

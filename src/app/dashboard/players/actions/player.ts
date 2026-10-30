@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { players } from "@/db/schema";
 import { FieldErrors, PG, pgErrorCode } from "@/lib/api";
-import { getSession } from "@/lib/auth";
+import { getSession } from "@/lib/jwt";
 import { idParamSchema, playerInputSchema } from "@/lib/validation/player";
 import { formatZodError } from "@/lib/validation/shared";
 

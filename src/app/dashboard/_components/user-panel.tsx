@@ -1,4 +1,4 @@
-import { getSession } from "@/lib/auth";
+import { getSession } from "@/lib/jwt";
 import { LogoutButton } from "./logout-button";
 import { getUserById } from "@/lib/queries/user";
 

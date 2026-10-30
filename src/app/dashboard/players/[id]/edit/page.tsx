@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { players } from "@/db/schema";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getSession } from "@/lib/auth";
+import { getSession } from "@/lib/jwt";
 import { PageHeader } from "@/components/reusables/page-header";
 import { idParamSchema } from "@/lib/validation/player";
 import { EmptyState } from "@/components/reusables/empty-state";

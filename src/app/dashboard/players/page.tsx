@@ -7,7 +7,7 @@ import { db } from "@/db";
 import { players } from "@/db/schema";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { getSession } from "@/lib/auth";
+import { getSession } from "@/lib/jwt";
 import { calculateImpactScore } from "@/lib/impact-score";
 import { PageHeader } from "@/components/reusables/page-header";
 import { TableSkeleton } from "@/components/reusables/table-skeleton";

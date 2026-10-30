@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getSession } from "@/lib/auth";
+import { getSession } from "@/lib/jwt";
 import { PlayerForm } from "../_components/player-form";
 import { PageHeader } from "@/components/reusables/page-header";
 import { EmptyState } from "@/components/reusables/empty-state";

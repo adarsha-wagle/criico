@@ -8,7 +8,7 @@ import {
   readJson,
   successResponse,
 } from "@/lib/api";
-import { setAuthCookie, signToken } from "@/lib/auth";
+import { setAuthCookie, signToken } from "@/lib/jwt";
 import { hashPassword } from "@/lib/password";
 import { formatZodError } from "@/lib/validation/shared";
 import { registerSchema } from "@/lib/validation/auth";

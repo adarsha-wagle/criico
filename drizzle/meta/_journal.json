@@ -8,6 +8,13 @@
       "when": 1793335255405,
       "tag": "0000_smooth_talon",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793360085015,
+      "tag": "0001_living_archangel",
+      "breakpoints": true
     }
   ]
 }
