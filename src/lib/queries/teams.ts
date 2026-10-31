@@ -1,4 +1,5 @@
 import "server-only";
+import { connection } from "next/server";
 import { asc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { matches, players, teams } from "@/db/schema";
@@ -8,6 +9,7 @@ import { matches, players, teams } from "@/db/schema";
  * Only finished matches (completed or draw) count towards played / won / drawn / lost.
  */
 export async function listTeams() {
+  await connection();
   const rows = await db
     .select({
       id: teams.id,
@@ -39,6 +41,7 @@ export type TeamSummary = Awaited<ReturnType<typeof listTeams>>[number];
 
 /** One team plus the players assigned to it, for the edit page. */
 export async function getTeamById(id: string) {
+  await connection();
   const [team] = await db
     .select({ id: teams.id, name: teams.name })
     .from(teams)

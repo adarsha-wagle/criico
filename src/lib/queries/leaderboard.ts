@@ -1,5 +1,6 @@
 import "server-only";
 
+import { connection } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { players } from "@/db/schema";
@@ -21,6 +22,8 @@ export interface LeaderboardOptions {
  * larger scale I'd store the score in a column updated on every write.
  */
 export async function getLeaderboard({ role, limit }: LeaderboardOptions = {}) {
+  // Request-time data: mark dynamic before the DB driver runs, or prerender fails.
+  await connection();
   const rows = await db
     .select({
       id: players.id,

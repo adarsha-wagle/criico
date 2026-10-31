@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { asc } from "drizzle-orm";
 import { Plus } from "lucide-react";
 import { db } from "@/db";
@@ -50,6 +51,7 @@ async function AddPlayerButton() {
 }
 
 async function PlayersList() {
+  await connection();
   const [session, rows] = await Promise.all([
     getSession(),
     db.select().from(players).orderBy(asc(players.name)),

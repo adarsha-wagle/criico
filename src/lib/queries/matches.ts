@@ -1,4 +1,5 @@
 import "server-only";
+import { connection } from "next/server";
 import { asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
@@ -211,6 +212,7 @@ export type MatchFormValues = NonNullable<
 
 /** Recent matches with team names, winner and how many players took part. */
 export async function listMatches(limit = 50) {
+  await connection();
   const teamA = alias(teams, "team_a");
   const teamB = alias(teams, "team_b");
   const winner = alias(teams, "winner");
@@ -243,6 +245,7 @@ export type MatchSummary = Awaited<ReturnType<typeof listMatches>>[number];
 
 /** Existing team names, offered as suggestions in the match form. */
 export async function listTeamNames() {
+  await connection();
   const rows = await db
     .select({ name: teams.name })
     .from(teams)
@@ -252,6 +255,7 @@ export async function listTeamNames() {
 
 /** One match with both teams and every player's performance, for the scorecard page. */
 export async function getMatchById(id: string) {
+  await connection();
   const teamA = alias(teams, "team_a");
   const teamB = alias(teams, "team_b");
 
