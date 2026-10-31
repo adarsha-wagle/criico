@@ -26,6 +26,7 @@ import { RoleSwatch } from "@/components/reusables/role-badge";
 export interface PlayerFormValues {
   name: string;
   role: TPlayerRole;
+  teamId: string | null;
   basePrice: number;
   matchesPlayed: number;
   totalRuns: number;
@@ -47,9 +48,11 @@ const NUMBER_FIELDS = [
 export function PlayerForm({
   playerId,
   defaults,
+  teams,
 }: {
   playerId?: string;
   defaults?: PlayerFormValues;
+  teams: { id: string; name: string }[];
 }) {
   const router = useRouter();
   const action = useMemo(
@@ -62,9 +65,17 @@ export function PlayerForm({
     FormData
   >(action, null);
 
-  // Role is held in state + a hidden input, so React 19's automatic form reset can't clear it.
-  // null = nothing chosen yet (Base UI shows the placeholder for null, not "").
   const [role, setRole] = useState<TPlayerRole | null>(defaults?.role ?? null);
+  // Same pattern for the team; null = "No team".
+  const [teamId, setTeamId] = useState<string | null>(defaults?.teamId ?? null);
+  // Base UI Select shows the label for the chosen value when given `items`.
+  const teamItems = useMemo(
+    () => [
+      { value: null, label: "No team" },
+      ...teams.map((t) => ({ value: t.id, label: t.name })),
+    ],
+    [teams],
+  );
 
   useEffect(() => {
     if (!state) return;
@@ -82,7 +93,7 @@ export function PlayerForm({
    * React 19 resets uncontrolled inputs after every action. Feeding the submitted values
    * back in as defaultValue means a failed submit keeps what the user typed.
    */
-  const valueOf = (name: keyof PlayerFormValues) =>
+  const valueOf = (name: (typeof NUMBER_FIELDS)[number]["name"] | "name") =>
     state && !state.ok && state.values?.[name] !== undefined
       ? state.values[name]
       : defaults
@@ -127,6 +138,33 @@ export function PlayerForm({
                       <RoleSwatch role={r} />
                       {r}
                     </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormField>
+        </div>
+
+        <div className="sm:col-span-2">
+          <FormField
+            id="teamId"
+            label="Team"
+            error={errors?.teamId?.[0]}
+            hint="Match forms only offer a team's own players."
+          >
+            <input type="hidden" name="teamId" value={teamId ?? ""} />
+            <Select
+              items={teamItems}
+              value={teamId}
+              onValueChange={(value) => setTeamId(value as string | null)}
+            >
+              <SelectTrigger id="teamId" className="w-full" {...a11y("teamId")}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {teamItems.map((t) => (
+                  <SelectItem key={t.value ?? "none"} value={t.value}>
+                    {t.label}
                   </SelectItem>
                 ))}
               </SelectContent>

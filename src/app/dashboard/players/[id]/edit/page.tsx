@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { players } from "@/db/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSession } from "@/lib/jwt";
+import { listTeamOptions } from "@/lib/queries/teams";
 import { PageHeader } from "@/components/reusables/page-header";
 import { idParamSchema } from "@/lib/validation/player";
 import { EmptyState } from "@/components/reusables/empty-state";
@@ -35,9 +36,10 @@ async function EditPlayer({ params }: { params: Params }) {
   const { id } = await params;
   if (!idParamSchema.safeParse(id).success) notFound();
 
-  const [session, player] = await Promise.all([
+  const [session, player, teams] = await Promise.all([
     getSession(),
     db.query.players.findFirst({ where: eq(players.id, id) }),
+    listTeamOptions(),
   ]);
 
   if (!player) notFound();
@@ -53,9 +55,11 @@ async function EditPlayer({ params }: { params: Params }) {
   return (
     <PlayerForm
       playerId={player.id}
+      teams={teams}
       defaults={{
         name: player.name,
         role: player.role,
+        teamId: player.teamId,
         basePrice: player.basePrice,
         matchesPlayed: player.matchesPlayed,
         totalRuns: player.totalRuns,

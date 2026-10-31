@@ -56,3 +56,13 @@ export async function getTeamById(id: string) {
 
   return { ...team, squad };
 }
+
+/** Every team as { id, name }, for team pickers in forms. */
+export async function listTeamOptions() {
+  await connection();
+  return db
+    .select({ id: teams.id, name: teams.name })
+    .from(teams)
+    .orderBy(asc(teams.name));
+}
+export type TeamOption = Awaited<ReturnType<typeof listTeamOptions>>[number];

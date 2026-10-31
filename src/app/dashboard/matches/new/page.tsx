@@ -10,7 +10,7 @@ import { PageHeader } from "@/components/reusables/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSession } from "@/lib/jwt";
-import { listTeamNames } from "@/lib/queries/matches";
+import { listTeamOptions } from "@/lib/queries/teams";
 import { MatchForm } from "../_components/match-form";
 
 export const metadata: Metadata = { title: "Record match" };
@@ -20,7 +20,7 @@ export default function NewMatchPage() {
     <>
       <PageHeader
         title="Record match"
-        description="Enter both teams, the result and what each player scored."
+        description="Pick both teams, the result and what each player scored."
       />
       {/* cacheComponents: cookie + DB reads must sit inside <Suspense>. */}
       <Suspense fallback={<Skeleton className="h-[32rem] w-full rounded-lg" />}>
@@ -41,13 +41,32 @@ async function MatchFormLoader() {
     );
   }
 
-  const [roster, teamNames] = await Promise.all([
+  const [roster, teams] = await Promise.all([
     db
-      .select({ id: players.id, name: players.name, role: players.role })
+      .select({
+        id: players.id,
+        name: players.name,
+        role: players.role,
+        teamId: players.teamId,
+      })
       .from(players)
       .orderBy(asc(players.name)),
-    listTeamNames(),
+    listTeamOptions(),
   ]);
+
+  if (teams.length < 2) {
+    return (
+      <EmptyState
+        title="Not enough teams"
+        description="A match needs two teams. Add teams and their squads first."
+        action={
+          <Link href="/dashboard/teams/new" className={buttonVariants()}>
+            Add team
+          </Link>
+        }
+      />
+    );
+  }
 
   if (roster.length < 2) {
     return (
@@ -64,5 +83,5 @@ async function MatchFormLoader() {
   }
 
   // No matchId / defaults → empty form that POSTs a new match.
-  return <MatchForm players={roster} teamNames={teamNames} />;
+  return <MatchForm players={roster} teams={teams} />;
 }

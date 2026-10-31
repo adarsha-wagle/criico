@@ -9,7 +9,8 @@ import { PageHeader } from "@/components/reusables/page-header";
 import { idParamSchema } from "@/lib/validation/player";
 import { EmptyState } from "@/components/reusables/empty-state";
 import { getSession } from "@/lib/jwt";
-import { getMatchFormValues, listTeamNames } from "@/lib/queries/matches";
+import { getMatchFormValues } from "@/lib/queries/matches";
+import { listTeamOptions } from "@/lib/queries/teams";
 import { MatchForm } from "../../_components/match-form";
 
 export const metadata: Metadata = { title: "Edit match" };
@@ -44,13 +45,18 @@ async function EditMatchLoader({ params }: { params: Params }) {
     );
   }
 
-  const [defaults, roster, teamNames] = await Promise.all([
+  const [defaults, roster, teams] = await Promise.all([
     getMatchFormValues(id),
     db
-      .select({ id: players.id, name: players.name, role: players.role })
+      .select({
+        id: players.id,
+        name: players.name,
+        role: players.role,
+        teamId: players.teamId,
+      })
       .from(players)
       .orderBy(asc(players.name)),
-    listTeamNames(),
+    listTeamOptions(),
   ]);
   if (!defaults) notFound();
 
@@ -59,7 +65,7 @@ async function EditMatchLoader({ params }: { params: Params }) {
       matchId={id}
       defaults={defaults}
       players={roster}
-      teamNames={teamNames}
+      teams={teams}
     />
   );
 }

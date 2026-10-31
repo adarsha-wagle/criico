@@ -6,7 +6,12 @@ import { id, nonNegInt } from "./shared";
 
 export const playerInputSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(80),
-  role: z.enum(PLAYER_ROLES),
+  role: z.enum(PLAYER_ROLES, { error: "Choose a role" }),
+  // "" from the form's "No team" option means unassigned.
+  teamId: z.preprocess(
+    (v) => (v === "" ? null : v),
+    z.uuid({ error: "Choose a valid team" }).nullable().optional(),
+  ),
   basePrice: nonNegInt("Base Price"),
   matchesPlayed: nonNegInt("Matches Played"),
   totalRuns: nonNegInt("Total Runs"),

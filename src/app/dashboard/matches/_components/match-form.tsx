@@ -25,6 +25,12 @@ export interface MatchFormPlayer {
   id: string;
   name: string;
   role: TPlayerRole;
+  teamId: string | null;
+}
+
+export interface MatchFormTeam {
+  id: string;
+  name: string;
 }
 
 interface Row {
@@ -72,29 +78,24 @@ function initialRows(defaults?: MatchFormDefaults): Record<TTeamSide, Row[]> {
   return { A: rowsFor("A"), B: rowsFor("B") };
 }
 
-/**
- * Records a match (POST /api/matches) or, with `matchId`, edits one (PATCH /api/matches/[id]).
- * JSON rather than a Server Action because the performance rows are dynamic.
- * Controlled inputs throughout, so nothing is lost when the server rejects a submission.
- * No `min` on runs/wickets: negative values are rejected by the server and shown as a toast.
- */
 export function MatchForm({
   players,
-  teamNames,
+  teams,
   matchId,
   defaults,
 }: {
   players: MatchFormPlayer[];
-  teamNames: string[];
+  teams: MatchFormTeam[];
   matchId?: string;
   defaults?: MatchFormDefaults;
 }) {
   const router = useRouter();
   const isEdit = Boolean(matchId);
-  const [teamA, setTeamA] = useState(defaults?.teamA ?? "");
-  const [teamB, setTeamB] = useState(defaults?.teamB ?? "");
-  const [playedAt, setPlayedAt] = useState(defaults?.playedAt ?? ""); // empty = the server uses today
-  // No default for a new match: an admin must pick the result, so a forgotten field can't become a draw.
+  const [team, setTeam] = useState<Record<TTeamSide, string | null>>({
+    A: defaults?.teamA ?? null,
+    B: defaults?.teamB ?? null,
+  });
+  const [playedAt, setPlayedAt] = useState(defaults?.playedAt ?? "");
   const [result, setResult] = useState<TMatchResult | null>(
     defaults?.result ?? null,
   );
@@ -115,8 +116,21 @@ export function MatchForm({
     [...rows.A, ...rows.B].map((r) => r.playerId).filter(Boolean),
   );
 
-  const nameA = teamA.trim() || "Team A";
-  const nameB = teamB.trim() || "Team B";
+  // The API takes team names; players are matched to a side through the team's id.
+  const teamItems = useMemo(
+    () => teams.map((t) => ({ value: t.name, label: t.name })),
+    [teams],
+  );
+  const teamIdOf = (name: string | null) =>
+    teams.find((t) => t.name === name)?.id;
+  const squadOf = (side: TTeamSide) => {
+    const id = teamIdOf(team[side]);
+    return id ? players.filter((p) => p.teamId === id) : [];
+  };
+  const squads = { A: squadOf("A"), B: squadOf("B") };
+
+  const nameA = team.A ?? "Team A";
+  const nameB = team.B ?? "Team B";
   const resultItems = [
     { value: "A", label: `${nameA} won` },
     { value: "B", label: `${nameB} won` },
@@ -133,6 +147,21 @@ export function MatchForm({
   const addRow = (side: TTeamSide) => {
     const key = `${side}${nextKey.current++}`;
     setRows((r) => ({ ...r, [side]: [...r[side], newRow(key)] }));
+  };
+  /** A new team for a side drops that side's players who aren't in it. */
+  const chooseTeam = (side: TTeamSide, name: string | null) => {
+    setTeam((t) => ({ ...t, [side]: name }));
+    const id = teamIdOf(name);
+    const inTeam = new Set(
+      players.filter((p) => id && p.teamId === id).map((p) => p.id),
+    );
+    const fallbackKey = `${side}${nextKey.current++}`;
+    setRows((r) => {
+      const kept = r[side].filter(
+        (row) => !row.playerId || inTeam.has(row.playerId),
+      );
+      return { ...r, [side]: kept.length ? kept : [newRow(fallbackKey)] };
+    });
   };
   const removeRow = (side: TTeamSide, key: string) =>
     setRows((r) => ({
@@ -155,8 +184,8 @@ export function MatchForm({
       {
         method: isEdit ? "PATCH" : "POST",
         body: JSON.stringify({
-          teamA,
-          teamB,
+          teamA: team.A ?? "",
+          teamB: team.B ?? "",
           result,
           playedAt: playedAt || undefined,
           performances: (["A", "B"] as const).flatMap((side) =>
@@ -191,31 +220,48 @@ export function MatchForm({
     <form onSubmit={onSubmit} noValidate className="grid gap-6">
       {/* Fixture ---------------------------------------------------- */}
       <section className="panel overflow-hidden">
-        <h2 className="border-b px-4 py-3 text-base font-semibold sm:px-6">Fixture</h2>
+        <h2 className="border-b px-4 py-3 text-base font-semibold sm:px-6">
+          Fixture
+        </h2>
         <div className="grid gap-5 p-4 sm:grid-cols-2 sm:p-6">
-          <FormField id="teamA" label="Team A" error={errors.teamA?.[0]}>
-            <Input
-              id="teamA"
-              list="team-options"
-              value={teamA}
-              onChange={(e) => setTeamA(e.target.value)}
-              aria-invalid={!!errors.teamA}
-            />
-          </FormField>
-          <FormField id="teamB" label="Team B" error={errors.teamB?.[0]}>
-            <Input
-              id="teamB"
-              list="team-options"
-              value={teamB}
-              onChange={(e) => setTeamB(e.target.value)}
-              aria-invalid={!!errors.teamB}
-            />
-          </FormField>
-          <datalist id="team-options">
-            {teamNames.map((t) => (
-              <option key={t} value={t} />
-            ))}
-          </datalist>
+          {(["A", "B"] as const).map((side) => {
+            const field = side === "A" ? "teamA" : "teamB";
+            const other = team[side === "A" ? "B" : "A"];
+            return (
+              <FormField
+                key={side}
+                id={field}
+                label={`Team ${side}`}
+                error={errors[field]?.[0]}
+              >
+                <Select
+                  items={teamItems}
+                  value={team[side]}
+                  onValueChange={(v) => chooseTeam(side, v as string | null)}
+                >
+                  <SelectTrigger
+                    id={field}
+                    className="w-full"
+                    aria-invalid={!!errors[field]}
+                  >
+                    <SelectValue placeholder="Choose team" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {teamItems.map((t) => (
+                      // A team can't play itself.
+                      <SelectItem
+                        key={t.value}
+                        value={t.value}
+                        disabled={t.value === other}
+                      >
+                        {t.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormField>
+            );
+          })}
 
           <FormField
             id="playedAt"
@@ -259,8 +305,9 @@ export function MatchForm({
         <div>
           <h2 className="text-base font-semibold">Player performances</h2>
           <p className="text-sm text-muted-foreground">
-            Runs and wickets in this match. Each is added to the player&apos;s
-            career totals, and their matches played goes up by one.
+            Runs and wickets in this match. Each side lists only its own
+            team&apos;s players. Each score is added to the player&apos;s career
+            totals, and their matches played goes up by one.
           </p>
           {errors.performances?.[0] && (
             <p className="mt-2 text-sm font-medium text-destructive">
@@ -277,7 +324,8 @@ export function MatchForm({
                   {side === "A" ? nameA : nameB}
                 </h3>
                 <span className="text-[13px] text-muted-foreground">
-                  {rows[side].length} {rows[side].length === 1 ? "player" : "players"}
+                  {rows[side].length}{" "}
+                  {rows[side].length === 1 ? "player" : "players"}
                 </span>
               </div>
 
@@ -303,6 +351,7 @@ export function MatchForm({
                         <Select
                           items={playerItems}
                           value={row.playerId}
+                          disabled={!team[side]}
                           onValueChange={(v) =>
                             updateRow(side, row.key, {
                               playerId: (v as string | null) ?? null,
@@ -313,14 +362,22 @@ export function MatchForm({
                             id={`${idBase}-player`}
                             className="w-full"
                           >
-                            <SelectValue placeholder="Choose player" />
+                            <SelectValue
+                              placeholder={
+                                team[side]
+                                  ? "Choose player"
+                                  : `Choose Team ${side} first`
+                              }
+                            />
                           </SelectTrigger>
                           <SelectContent>
                             {players
-                              // A player can't be picked twice, on either team.
+
                               .filter(
                                 (p) =>
-                                  p.id === row.playerId || !chosen.has(p.id),
+                                  p.id === row.playerId ||
+                                  (squads[side].includes(p) &&
+                                    !chosen.has(p.id)),
                               )
                               .map((p) => (
                                 <SelectItem key={p.id} value={p.id}>
@@ -395,7 +452,7 @@ export function MatchForm({
                   variant="outline"
                   size="sm"
                   onClick={() => addRow(side)}
-                  disabled={chosen.size >= players.length}
+                  disabled={squads[side].every((p) => chosen.has(p.id))}
                   className="w-full"
                 >
                   <Plus aria-hidden />

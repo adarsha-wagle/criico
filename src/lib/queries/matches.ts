@@ -41,17 +41,31 @@ export class MatchNotFoundError extends Error {}
 
 type PerfTotals = { playerId: string; runs: number; wickets: number };
 
-/** All selected players must still exist, or the FK insert would fail with a vague error. */
-async function assertPlayersExist(tx: Tx, input: TMatchInput) {
+async function assertSquads(
+  tx: Tx,
+  input: TMatchInput,
+  sideToTeam: { A: string; B: string },
+  kept = new Set<string>(),
+) {
   const playerIds = input.performances.map((p) => p.playerId);
   const found = await tx
-    .select({ id: players.id })
+    .select({ id: players.id, name: players.name, teamId: players.teamId })
     .from(players)
     .where(inArray(players.id, playerIds));
   if (found.length !== playerIds.length) {
     throw new MatchInputError(
       "One or more selected players no longer exist. Reload and try again.",
     );
+  }
+
+  const byId = new Map(found.map((p) => [p.id, p]));
+  for (const perf of input.performances) {
+    const player = byId.get(perf.playerId)!;
+    const teamId = sideToTeam[perf.team];
+    if (player.teamId !== teamId && !kept.has(`${player.id}:${teamId}`)) {
+      const teamName = perf.team === "A" ? input.teamA : input.teamB;
+      throw new MatchInputError(`${player.name} is not in ${teamName}`);
+    }
   }
 }
 
@@ -115,8 +129,8 @@ async function adjustTotals(tx: Tx, perfs: PerfTotals[], direction: 1 | -1) {
  */
 export async function recordMatch(input: TMatchInput, recordedBy: string) {
   return db.transaction(async (tx) => {
-    await assertPlayersExist(tx, input);
     const { sideToTeam, columns } = await resolveMatchColumns(tx, input);
+    await assertSquads(tx, input, sideToTeam);
 
     const [match] = await tx
       .insert(matches)
@@ -150,11 +164,10 @@ export async function updateMatch(id: string, input: TMatchInput) {
       .where(eq(matches.id, id));
     if (!existing) throw new MatchNotFoundError("Match not found");
 
-    await assertPlayersExist(tx, input);
-
     const old = await tx
       .select({
         playerId: matchPerformances.playerId,
+        teamId: matchPerformances.teamId,
         runs: matchPerformances.runs,
         wickets: matchPerformances.wickets,
       })
@@ -164,6 +177,12 @@ export async function updateMatch(id: string, input: TMatchInput) {
     await tx.delete(matchPerformances).where(eq(matchPerformances.matchId, id));
 
     const { sideToTeam, columns } = await resolveMatchColumns(tx, input);
+    await assertSquads(
+      tx,
+      input,
+      sideToTeam,
+      new Set(old.map((p) => `${p.playerId}:${p.teamId}`)),
+    );
     await tx
       .update(matches)
       .set({ ...columns, playedAt: input.playedAt ?? existing.playedAt })
@@ -242,16 +261,6 @@ export async function listMatches(limit = 50) {
     .limit(limit);
 }
 export type MatchSummary = Awaited<ReturnType<typeof listMatches>>[number];
-
-/** Existing team names, offered as suggestions in the match form. */
-export async function listTeamNames() {
-  await connection();
-  const rows = await db
-    .select({ name: teams.name })
-    .from(teams)
-    .orderBy(asc(teams.name));
-  return rows.map((r) => r.name);
-}
 
 /** One match with both teams and every player's performance, for the scorecard page. */
 export async function getMatchById(id: string) {
