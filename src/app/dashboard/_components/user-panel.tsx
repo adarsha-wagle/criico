@@ -1,8 +1,9 @@
 import { getSession } from "@/lib/jwt";
-import { LogoutButton } from "./logout-button";
 import { getUserById } from "@/lib/queries/user";
+import { Skeleton } from "@/components/ui/skeleton";
+import { LogoutButton } from "./logout-button";
 
-/** Server component: who is logged in, their role, and log out. */
+/** Server component: who is logged in, what they can do, and log out. */
 export async function UserPanel() {
   const session = await getSession();
   if (!session) return null; // middleware already redirects; this is a safety net
@@ -10,14 +11,13 @@ export async function UserPanel() {
   const user = await getUserById(session.userId);
 
   return (
-    <div className="grid gap-3">
-      <div className="min-w-0">
-        <p className="truncate text-sm font-semibold">
+    <div className="flex items-center gap-4">
+      <div className="hidden min-w-0 text-right sm:block">
+        <p className="truncate text-sm leading-tight font-medium">
           {user?.name ?? "Unknown user"}
         </p>
-        <p className="truncate text-xs opacity-80">{user?.email}</p>
-        <p className="mt-1 text-[11px] font-medium uppercase tracking-wide opacity-80">
-          {session.role === "admin" ? "Admin: can edit" : "Viewer: read only"}
+        <p className="truncate text-[13px] leading-tight text-muted-foreground">
+          {session.role === "admin" ? "Admin" : "Viewer, read only"}
         </p>
       </div>
       <LogoutButton />
@@ -27,10 +27,12 @@ export async function UserPanel() {
 
 export function UserPanelSkeleton() {
   return (
-    <div className="grid gap-3" aria-busy="true">
-      <div className="h-4 w-32 bg-sidebar-accent" />
-      <div className="h-3 w-40 bg-sidebar-accent" />
-      <div className="h-8 w-full bg-sidebar-accent" />
+    <div className="flex items-center gap-4" aria-busy="true">
+      <div className="hidden gap-1.5 sm:grid">
+        <Skeleton className="h-3.5 w-28" />
+        <Skeleton className="ml-auto h-3 w-16" />
+      </div>
+      <Skeleton className="h-8 w-20" />
     </div>
   );
 }

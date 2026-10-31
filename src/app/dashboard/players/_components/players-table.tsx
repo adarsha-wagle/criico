@@ -25,8 +25,6 @@ export interface PlayerRow {
   impact: number;
 }
 
-const head = "text-xs uppercase tracking-wide";
-
 /** Server component. Edit buttons only render for admins. */
 export function PlayersTable({
   players,
@@ -36,20 +34,20 @@ export function PlayersTable({
   canEdit: boolean;
 }) {
   return (
-    <div className="border bg-card">
+    <div className="panel overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-muted hover:bg-muted">
-            <TableHead className={head}>Player</TableHead>
-            <TableHead className={cn(head, "hidden text-right md:table-cell")}>
+          <TableRow>
+            <TableHead>Player</TableHead>
+            <TableHead className="hidden text-right md:table-cell">
               Base price
             </TableHead>
-            <TableHead className={cn(head, "hidden text-right sm:table-cell")}>
+            <TableHead className="hidden text-right sm:table-cell">
               Matches
             </TableHead>
-            <TableHead className={cn(head, "text-right")}>Runs</TableHead>
-            <TableHead className={cn(head, "text-right")}>Wickets</TableHead>
-            <TableHead className={cn(head, "text-right")}>Impact</TableHead>
+            <TableHead className="text-right">Runs</TableHead>
+            <TableHead className="text-right">Wickets</TableHead>
+            <TableHead className="text-right">Impact</TableHead>
             {canEdit && (
               <TableHead className="w-12">
                 <span className="sr-only">Actions</span>
@@ -61,7 +59,7 @@ export function PlayersTable({
           {players.map((p) => (
             <TableRow key={p.id}>
               <TableCell>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   <span className="font-medium">{p.name}</span>
                   <RoleBadge role={p.role} className="w-fit" />
                 </div>
@@ -80,7 +78,7 @@ export function PlayersTable({
               </TableCell>
               <TableCell
                 className={cn(
-                  "text-right font-semibold",
+                  "text-right font-display text-lg font-semibold",
                   p.impact < 0 && "text-destructive",
                 )}
               >
@@ -93,7 +91,7 @@ export function PlayersTable({
                     aria-label={`Edit ${p.name}`}
                     className={buttonVariants({
                       variant: "ghost",
-                      size: "icon",
+                      size: "icon-sm",
                     })}
                   >
                     <Pencil />

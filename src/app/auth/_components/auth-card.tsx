@@ -1,12 +1,3 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
 export function AuthCard({
   title,
   description,
@@ -19,15 +10,17 @@ export function AuthCard({
   children: React.ReactNode;
 }) {
   return (
-    <Card className="w-full max-w-sm gap-0 py-0">
-      <CardHeader className="border-b py-5">
-        <CardTitle className="text-xl">{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardContent className="py-6">{children}</CardContent>
-      <CardFooter className="border-t py-4 text-sm text-muted-foreground">
+    <div className="panel w-full max-w-sm">
+      <div className="px-6 pt-6">
+        <h1 className="font-display text-2xl leading-tight font-semibold tracking-tight">
+          {title}
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+      </div>
+      <div className="p-6">{children}</div>
+      <div className="border-t px-6 py-4 text-sm text-muted-foreground">
         {footer}
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 }

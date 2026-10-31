@@ -15,7 +15,7 @@ export default function NewTeamPage() {
         title="Add team"
         description="Teams can then be picked when recording a match."
       />
-      <div className="max-w-xl border bg-card p-4 sm:p-6">
+      <div className="panel max-w-xl p-5 sm:p-6">
         <Suspense fallback={<Skeleton className="h-40 w-full" />}>
           <AdminOnly>
             <TeamForm />

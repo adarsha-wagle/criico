@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api-client";
@@ -24,14 +23,7 @@ export function LogoutButton() {
   }
 
   return (
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={logout}
-      disabled={pending}
-      className="w-full justify-start border-sidebar-border bg-transparent text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-    >
-      <LogOut aria-hidden />
+    <Button variant="outline" size="sm" onClick={logout} disabled={pending}>
       {pending ? "Logging out…" : "Log out"}
     </Button>
   );

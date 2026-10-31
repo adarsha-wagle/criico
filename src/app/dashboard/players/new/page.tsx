@@ -15,7 +15,7 @@ export default function NewPlayerPage() {
         title="Add player"
         description="Career totals so far. Match results will add to them later."
       />
-      <div className="max-w-2xl border bg-card p-4 sm:p-6">
+      <div className="panel max-w-2xl p-5 sm:p-6">
         <Suspense fallback={<Skeleton className="h-96 w-full" />}>
           <AdminOnly>
             <PlayerForm />

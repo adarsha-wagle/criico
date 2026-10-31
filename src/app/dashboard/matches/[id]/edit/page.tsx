@@ -23,7 +23,7 @@ export default function EditMatchPage({ params }: { params: Params }) {
         title="Edit match"
         description="Saving removes this match's old runs and wickets from player totals and adds the new ones."
       />
-      <Suspense fallback={<Skeleton className="h-[32rem] w-full" />}>
+      <Suspense fallback={<Skeleton className="h-[32rem] w-full rounded-lg" />}>
         <EditMatchLoader params={params} />
       </Suspense>
     </>

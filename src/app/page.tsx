@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSession } from "@/lib/jwt";
 import { getLeaderboard } from "@/lib/queries/leaderboard";
@@ -15,17 +15,19 @@ const RULES = [
   { rule: "Bowler", effect: "Wickets count 1.5 times before scoring" },
   {
     rule: "Wicketkeeper",
-    effect: "Flat 30 point bonus, no bowling multiplier",
+    effect: "30 points added, no bowling multiplier",
   },
   { rule: "Fewer than 5 matches", effect: "50 points deducted" },
   { rule: "More than 20 matches", effect: "100 points added" },
 ];
 
+const container = "mx-auto w-full max-w-[1120px] px-4 md:px-6";
+
 export default function HomePage() {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="border-b bg-card">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
+        <div className={`${container} flex h-14 items-center justify-between`}>
           <Brand />
           <Suspense fallback={<div className="h-9 w-40" />}>
             <AuthLinks />
@@ -34,48 +36,76 @@ export default function HomePage() {
       </header>
 
       <main className="flex-1">
-        <section>
-          <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-[1.1fr_1fr] md:py-16">
-            <div className="flex flex-col justify-center">
-              <p className="text-sm font-medium uppercase tracking-wide text-primary">
-                For local cricket clubs
-              </p>
-              <h1 className="mt-3 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
-                Player records, match results and one score that ranks them all.
-              </h1>
-              <p className="mt-4 max-w-prose text-muted-foreground">
-                Club admins add players and record each match. Every result
-                updates the player&apos;s Impact Score, so selectors can see at
-                a glance who is contributing to the side.
-              </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button size="lg">
-                  <Link href="/auth/register">Create an account</Link>
-                </Button>
-                <Button size="lg" variant="outline">
-                  <Link href="/auth/login">Log in</Link>
-                </Button>
-              </div>
+        <section className={`${container} grid gap-10 py-12 md:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-14`}>
+          <div className="flex flex-col justify-center">
+            <h1 className="max-w-[18ch] font-display text-[40px] leading-[1.05] font-semibold tracking-tight sm:text-5xl">
+              Player records and match results for local cricket clubs
+            </h1>
+            <p className="mt-5 max-w-[52ch] text-base leading-relaxed text-muted-foreground">
+              Admins add players and record each match. Every result updates
+              the players&apos; Impact Scores, so selectors can see who is
+              contributing to the side.
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/auth/register"
+                className={buttonVariants({ size: "lg" })}
+              >
+                Create account
+              </Link>
+              <Link
+                href="/auth/login"
+                className={buttonVariants({ size: "lg", variant: "outline" })}
+              >
+                Log in
+              </Link>
             </div>
+          </div>
 
-            <div>
-              <div className="mb-3 flex items-baseline justify-between">
-                <h2 className="font-semibold">Current top five</h2>
-                <span className="text-xs text-muted-foreground">
-                  Live from the club register
-                </span>
-              </div>
-              <Suspense fallback={<Skeleton className="h-72 w-full" />}>
-                <TopFive />
-              </Suspense>
+          <div>
+            <div className="mb-3 flex items-baseline justify-between gap-4">
+              <h2 className="text-base font-semibold">Current top five</h2>
+              <span className="text-[13px] text-muted-foreground">
+                Updated with every recorded match
+              </span>
             </div>
+            <Suspense fallback={<Skeleton className="h-80 w-full rounded-lg" />}>
+              <TopFive />
+            </Suspense>
+          </div>
+        </section>
+
+        <section className="border-t bg-card">
+          <div className={`${container} grid gap-8 py-12 md:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-14`}>
+            <div>
+              <h2 className="font-display text-[28px] leading-tight font-semibold tracking-tight">
+                How the Impact Score works
+              </h2>
+              <p className="mt-3 max-w-[52ch] text-sm leading-relaxed text-muted-foreground">
+                One number per player, built from career runs, wickets and
+                matches played. The role rules are applied to runs and wickets
+                before the points are added up, then the experience
+                adjustment is applied to the total.
+              </p>
+            </div>
+            <dl className="panel divide-y overflow-hidden">
+              {RULES.map(({ rule, effect }) => (
+                <div
+                  key={rule}
+                  className="grid gap-1 px-4 py-3 text-sm sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-4"
+                >
+                  <dt className="font-medium">{rule}</dt>
+                  <dd className="text-muted-foreground">{effect}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
         </section>
       </main>
 
-      <footer className="border-t bg-card">
-        <div className="mx-auto max-w-6xl px-4 py-6 text-sm text-muted-foreground">
-          Criico.
+      <footer className="border-t">
+        <div className={`${container} py-6 text-sm text-muted-foreground`}>
+          Criico, a club register for local cricket.
         </div>
       </footer>
     </div>
@@ -86,19 +116,22 @@ async function AuthLinks() {
   const session = await getSession();
   if (session) {
     return (
-      <Button size="sm">
-        <Link href="/dashboard">Open dashboard</Link>
-      </Button>
+      <Link href="/dashboard" className={buttonVariants({ size: "sm" })}>
+        Open dashboard
+      </Link>
     );
   }
   return (
     <nav className="flex items-center gap-2">
-      <Button size="sm" variant="ghost">
-        <Link href="/auth/login">Log in</Link>
-      </Button>
-      <Button size="sm">
-        <Link href="/auth/register">Register</Link>
-      </Button>
+      <Link
+        href="/auth/login"
+        className={buttonVariants({ size: "sm", variant: "ghost" })}
+      >
+        Log in
+      </Link>
+      <Link href="/auth/register" className={buttonVariants({ size: "sm" })}>
+        Create account
+      </Link>
     </nav>
   );
 }
@@ -107,9 +140,9 @@ async function TopFive() {
   const entries = await getLeaderboard({ limit: 5 });
   if (entries.length === 0) {
     return (
-      <div className="border bg-card p-6 text-sm text-muted-foreground">
-        No players registered yet. The top five appears here once an admin adds
-        players.
+      <div className="panel p-6 text-sm text-muted-foreground">
+        No players registered yet. The top five appears here once an admin
+        adds players.
       </div>
     );
   }

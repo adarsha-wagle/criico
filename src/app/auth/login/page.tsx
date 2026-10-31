@@ -27,6 +27,18 @@ export default function LoginPage() {
       <Suspense>
         <LoginForm />
       </Suspense>
+
+      {/* Test-only admin account, shown for reviewers. */}
+      <div className="mt-6 rounded-md border bg-muted px-4 py-3 text-[13px]">
+        <p className="font-medium">Admin credentials</p>
+        <p className="mt-1 text-muted-foreground">
+          Email:{" "}
+          <span className="text-foreground select-all">admin@criico.com</span>
+        </p>
+        <p className="text-muted-foreground">
+          Password: <span className="text-foreground select-all">admin123</span>
+        </p>
+      </div>
     </AuthCard>
   );
 }

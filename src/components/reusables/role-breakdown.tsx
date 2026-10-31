@@ -1,8 +1,8 @@
 import { TPlayerRole } from "@/lib/validation/player";
-import { ROLE_FILL, ROLE_TEXT } from "./role-badge";
-import { cn } from "cn";
+import { cn } from "@/lib/utils";
+import { ROLE_FILL, RoleBadge } from "./role-badge";
 
-/** Flat horizontal bars: how the squad splits across roles. Bar colour = role colour. */
+/** Horizontal bars: how the squad splits across roles. Bar colour = role colour. */
 export function RoleBreakdown({
   counts,
   total,
@@ -11,19 +11,19 @@ export function RoleBreakdown({
   total: number;
 }) {
   return (
-    <ul className="grid gap-4">
+    <ul className="grid gap-5">
       {counts.map(({ role, count }) => {
         const pct = total ? Math.round((count / total) * 100) : 0;
         return (
-          <li key={role} className="grid gap-1.5">
+          <li key={role} className="grid gap-2">
             <div className="flex items-baseline justify-between text-sm">
-              <span className={cn("font-medium", ROLE_TEXT[role])}>{role}</span>
+              <RoleBadge role={role} className="text-sm text-foreground" />
               <span className="tabular-nums text-muted-foreground">
-                {count} <span className="text-xs">({pct}%)</span>
+                {count} <span className="text-[13px]">({pct}%)</span>
               </span>
             </div>
             <div
-              className="h-2 w-full bg-muted"
+              className="h-1.5 w-full overflow-hidden rounded-sm bg-secondary"
               role="progressbar"
               aria-label={`${role}s`}
               aria-valuenow={pct}

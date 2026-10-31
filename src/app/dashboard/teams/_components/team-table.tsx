@@ -13,8 +13,6 @@ import { formatNumber } from "@/lib/format";
 import type { TeamSummary } from "@/lib/queries/teams";
 import { cn } from "@/lib/utils";
 
-const head = "text-xs uppercase tracking-wide";
-
 /** Server component. Columns: squad size and the team's record. Edit only for admins. */
 export function TeamsTable({
   teams,
@@ -24,27 +22,27 @@ export function TeamsTable({
   canEdit: boolean;
 }) {
   return (
-    <div className="border bg-card">
+    <div className="panel overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-muted hover:bg-muted">
-            <TableHead className={head}>Team</TableHead>
-            <TableHead className={cn(head, "hidden text-right sm:table-cell")}>
+          <TableRow>
+            <TableHead>Team</TableHead>
+            <TableHead className="hidden text-right sm:table-cell">
               Players
             </TableHead>
             <TableHead
-              className={cn(head, "text-right")}
+              className="text-right"
               title="Matches played"
             >
               P
             </TableHead>
-            <TableHead className={cn(head, "text-right")} title="Won">
+            <TableHead className="text-right" title="Won">
               W
             </TableHead>
-            <TableHead className={cn(head, "text-right")} title="Drawn">
+            <TableHead className="text-right" title="Drawn">
               D
             </TableHead>
-            <TableHead className={cn(head, "text-right")} title="Lost">
+            <TableHead className="text-right" title="Lost">
               L
             </TableHead>
             {canEdit && (
@@ -61,8 +59,8 @@ export function TeamsTable({
                 <div className="flex flex-col gap-0.5">
                   <span className="font-medium">{t.name}</span>
                   {/* Squad size moves under the name on small screens. */}
-                  <span className="text-xs text-muted-foreground sm:hidden">
-                    {t.playerCount} players
+                  <span className="text-[13px] text-muted-foreground sm:hidden">
+                    {t.playerCount} {t.playerCount === 1 ? "player" : "players"}
                   </span>
                 </div>
               </TableCell>
@@ -72,7 +70,7 @@ export function TeamsTable({
               <TableCell className="text-right">
                 {formatNumber(t.played)}
               </TableCell>
-              <TableCell className="text-right font-semibold text-primary">
+              <TableCell className="text-right font-medium">
                 {formatNumber(t.won)}
               </TableCell>
               <TableCell className="text-right">
@@ -90,7 +88,7 @@ export function TeamsTable({
                     aria-label={`Edit ${t.name}`}
                     className={buttonVariants({
                       variant: "ghost",
-                      size: "icon",
+                      size: "icon-sm",
                     })}
                   >
                     <Pencil />

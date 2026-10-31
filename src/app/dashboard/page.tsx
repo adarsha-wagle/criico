@@ -4,10 +4,11 @@ import type { Metadata } from "next";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatNumber, formatScore } from "@/lib/format";
+import { getSession } from "@/lib/jwt";
 import { getDashboardStats } from "@/lib/queries/dashboard";
 import { PageHeader } from "@/components/reusables/page-header";
 import { EmptyState } from "@/components/reusables/empty-state";
-import { StatCard } from "@/components/reusables/stat-card";
+import { StatCard, StatGrid } from "@/components/reusables/stat-card";
 import { LeaderboardTable } from "./leaderboard/_components/leaderboard-table";
 import { RoleBreakdown } from "@/components/reusables/role-breakdown";
 
@@ -18,7 +19,7 @@ export default function DashboardOverviewPage() {
     <>
       <PageHeader
         title="Overview"
-        description="The state of the club register right now."
+        description="Where the club register stands today."
       />
       <Suspense fallback={<OverviewSkeleton />}>
         <OverviewContent />
@@ -28,17 +29,27 @@ export default function DashboardOverviewPage() {
 }
 
 async function OverviewContent() {
-  const stats = await getDashboardStats();
+  const [stats, session] = await Promise.all([
+    getDashboardStats(),
+    getSession(),
+  ]);
 
   if (stats.total === 0) {
+    const isAdmin = session?.role === "admin";
     return (
       <EmptyState
         title="No players registered"
-        description="Add your first player to start building the leaderboard."
+        description={
+          isAdmin
+            ? "Add your first player to start the leaderboard."
+            : "The leaderboard starts once an admin adds players."
+        }
         action={
-          <Link href="/dashboard/players/new" className={buttonVariants()}>
-            Add a player
-          </Link>
+          isAdmin && (
+            <Link href="/dashboard/players/new" className={buttonVariants()}>
+              Add player
+            </Link>
+          )
         }
       />
     );
@@ -46,7 +57,7 @@ async function OverviewContent() {
 
   return (
     <div className="grid gap-6">
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <StatGrid>
         <StatCard
           label="Players"
           value={formatNumber(stats.total)}
@@ -68,17 +79,17 @@ async function OverviewContent() {
         <StatCard
           label="Rookies"
           value={formatNumber(stats.rookies)}
-          hint="Under 5 matches, 50 point penalty"
+          hint="Under 5 matches, 50 points deducted"
         />
-      </div>
+      </StatGrid>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <section>
           <div className="mb-3 flex items-baseline justify-between">
-            <h2 className="font-semibold">Top five by Impact Score</h2>
+            <h2 className="text-base font-semibold">Top five by Impact Score</h2>
             <Link
               href="/dashboard/leaderboard"
-              className="text-sm font-medium text-primary underline underline-offset-4"
+              className="text-sm font-medium text-primary underline-offset-4 hover:underline"
             >
               Full leaderboard
             </Link>
@@ -87,8 +98,8 @@ async function OverviewContent() {
         </section>
 
         <section>
-          <h2 className="mb-3 font-semibold">Squad by role</h2>
-          <div className="border bg-card p-4">
+          <h2 className="mb-3 text-base font-semibold">Squad by role</h2>
+          <div className="panel p-5">
             <RoleBreakdown counts={stats.roleCounts} total={stats.total} />
           </div>
         </section>
@@ -100,14 +111,10 @@ async function OverviewContent() {
 function OverviewSkeleton() {
   return (
     <div className="grid gap-6" aria-busy="true">
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {Array.from({ length: 4 }, (_, i) => (
-          <Skeleton key={i} className="h-24" />
-        ))}
-      </div>
+      <Skeleton className="h-28 rounded-lg" />
       <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-        <Skeleton className="h-72" />
-        <Skeleton className="h-72" />
+        <Skeleton className="h-72 rounded-lg" />
+        <Skeleton className="h-72 rounded-lg" />
       </div>
     </div>
   );

@@ -5,61 +5,56 @@
 
 /*
  * Criico design tokens
- * Palette taken from the game itself:
- *   cream  = cricket whites (page background)
- *   green  = the pitch (sidebar, primary actions)
+ *   gray   = page canvas, white surfaces on top
+ *   green  = the outfield (primary actions, active navigation)
  *   red    = the ball (errors, destructive actions, negative scores)
  * Every player role has one fixed colour, used everywhere that role appears.
- * Flat: square corners, 1px borders, no shadows.
+ * Flat: 1px borders, no shadows on surfaces. Controls 6px radius, panels 8px.
  */
 :root {
-  --radius: 0px;
+  --radius: 6px;
 
-  --background: #f3eee2;
-  --foreground: #13241c;
+  --background: #f1f2f4;
+  --foreground: #1d2125;
 
-  --card: #fbf8f1;
-  --card-foreground: #13241c;
-  --popover: #fbf8f1;
-  --popover-foreground: #13241c;
+  --card: #ffffff;
+  --card-foreground: #1d2125;
+  --popover: #ffffff;
+  --popover-foreground: #1d2125;
 
-  --primary: #0e4d33;
-  --primary-foreground: #f3eee2;
+  --primary: #1b6b47;
+  --primary-foreground: #ffffff;
 
-  --secondary: #e6dcc6;
-  --secondary-foreground: #13241c;
+  --secondary: #eceef1;
+  --secondary-foreground: #1d2125;
 
-  --muted: #e9e1cf;
-  --muted-foreground: #5c5a40;
+  /* Table headers, hover rows, track backgrounds. */
+  --muted: #f5f6f7;
+  --muted-foreground: #5e6670;
 
-  --accent: #dfe9db;
-  --accent-foreground: #0e4d33;
+  /* Selected / active states. */
+  --accent: #e7f0eb;
+  --accent-foreground: #14553a;
 
   --destructive: #b42318;
-  --destructive-foreground: #fbf8f1;
+  --destructive-foreground: #ffffff;
 
-  --border: #cbbf9f;
-  --input: #b9ac89;
-  --ring: #0e4d33;
-
-  --sidebar: #0e3b29;
-  --sidebar-foreground: #f3eee2;
-  --sidebar-primary: #f3eee2;
-  --sidebar-primary-foreground: #0e3b29;
-  --sidebar-accent: #17503a;
-  --sidebar-accent-foreground: #f3eee2;
-  --sidebar-border: #24583f;
-  --sidebar-ring: #f3eee2;
+  --border: #dcdfe3;
+  --input: #c9cdd3;
+  --ring: #1b6b47;
 
   /* Role colours */
-  --role-batsman: #1d4e89;
-  --role-bowler: #b42318;
-  --role-allrounder: #9a5b13;
-  --role-wicketkeeper: #0e7c66;
+  --role-batsman: #2457a6;
+  --role-bowler: #b7501d;
+  --role-allrounder: #8c6a0b;
+  --role-wicketkeeper: #23767f;
 }
 
 @theme inline {
-  --font-sans: var(--font-work-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display:
+    var(--font-barlow-condensed), var(--font-public-sans), ui-sans-serif,
+    sans-serif;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -81,35 +76,20 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-
   --color-role-batsman: var(--role-batsman);
   --color-role-bowler: var(--role-bowler);
   --color-role-allrounder: var(--role-allrounder);
   --color-role-wicketkeeper: var(--role-wicketkeeper);
 
-  /* Square corners everywhere: change --radius above to round them all at once. */
-  --radius-sm: var(--radius);
+  --radius-sm: 4px;
   --radius-md: var(--radius);
-  --radius-lg: var(--radius);
-  --radius-xl: var(--radius);
+  --radius-lg: 8px;
+  --radius-xl: 8px;
 }
 
-/* Flat design: every shadcn shadow utility becomes a no-op. */
-@theme {
-  --shadow-2xs: 0 0 #0000;
-  --shadow-xs: 0 0 #0000;
-  --shadow-sm: 0 0 #0000;
-  --shadow-md: 0 0 #0000;
-  --shadow-lg: 0 0 #0000;
-  --shadow-xl: 0 0 #0000;
+/* The one surface style: white, 1px border, 8px corners. */
+@utility panel {
+  @apply rounded-lg border bg-card;
 }
 
 @layer base {
@@ -120,7 +100,16 @@
     @apply bg-background text-foreground antialiased;
   }
   /* Scores, runs and wickets line up in columns. */
-  table {
+  table,
+  .tabular-nums {
     font-variant-numeric: tabular-nums;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }

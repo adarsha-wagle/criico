@@ -46,16 +46,16 @@ async function EditTeam({ params }: { params: Params }) {
 
   return (
     <div className="grid max-w-xl gap-6">
-      <div className="border bg-card p-4 sm:p-6">
+      <div className="panel p-5 sm:p-6">
         <TeamForm teamId={team.id} defaultName={team.name} />
       </div>
 
       {/* Read-only: shows who is linked to this team. */}
-      <section className="border bg-card">
+      <section className="panel overflow-hidden">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <h2 className="font-semibold">Squad</h2>
-          <span className="text-xs text-muted-foreground">
-            {team.squad.length} players
+          <span className="text-[13px] text-muted-foreground">
+            {team.squad.length} {team.squad.length === 1 ? "player" : "players"}
           </span>
         </div>
         {team.squad.length === 0 ? (

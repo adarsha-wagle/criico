@@ -15,15 +15,15 @@ export function FormField({
   children: React.ReactNode;
 }) {
   return (
-    <div className="grid gap-1.5">
+    <div className="grid gap-2">
       <Label htmlFor={id}>{label}</Label>
       {children}
       {error ? (
-        <p id={`${id}-error`} className="text-xs font-medium text-destructive">
+        <p id={`${id}-error`} className="text-[13px] text-destructive">
           {error}
         </p>
       ) : (
-        hint && <p className="text-xs text-muted-foreground">{hint}</p>
+        hint && <p className="text-[13px] text-muted-foreground">{hint}</p>
       )}
     </div>
   );

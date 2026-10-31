@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-/** Text wordmark. No logo shape: the name is the brand. */
+/** Text wordmark in the display face. No logo shape: the name is the brand. */
 export function Brand({
   href = "/",
   className,
@@ -12,7 +12,10 @@ export function Brand({
   return (
     <Link
       href={href}
-      className={cn("text-lg font-semibold tracking-tight", className)}
+      className={cn(
+        "font-display text-[22px] leading-none font-semibold tracking-tight text-foreground",
+        className,
+      )}
     >
       Criico
     </Link>

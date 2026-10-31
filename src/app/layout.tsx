@@ -1,11 +1,20 @@
 import type { Metadata } from "next";
-import { Work_Sans } from "next/font/google";
+import { Barlow_Semi_Condensed, Public_Sans } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-const workSans = Work_Sans({
+/* Public Sans for interface text and tables (tabular figures). */
+const publicSans = Public_Sans({
   subsets: ["latin"],
-  variable: "--font-work-sans",
+  variable: "--font-public-sans",
+  display: "swap",
+});
+
+/* Barlow Semi Condensed for page titles, stats and scores: scoreboard lettering. */
+const barlow = Barlow_Semi_Condensed({
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  variable: "--font-barlow-condensed",
   display: "swap",
 });
 
@@ -21,17 +30,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={workSans.variable}>
+    <html lang="en" className={`${publicSans.variable} ${barlow.variable}`}>
       <body className="min-h-dvh font-sans">
         {children}
-        {/* Flat toasts: square, 1px border, no shadow. Light theme to match the app. */}
         <Toaster
           theme="light"
           position="top-center"
           toastOptions={{
             classNames: {
               toast:
-                "!rounded-none !border !border-border !shadow-none !font-sans",
+                "!rounded-lg !border !border-border !font-sans !text-sm !shadow-md",
             },
           }}
         />

@@ -10,8 +10,6 @@ import {
 import { formatNumber } from "@/lib/format";
 import type { MatchSummary } from "@/lib/queries/matches";
 import { cn } from "@/lib/utils";
-
-const head = "text-xs uppercase tracking-wide";
 const dateFmt = new Intl.DateTimeFormat("en-GB", {
   day: "2-digit",
   month: "short",
@@ -21,19 +19,19 @@ const dateFmt = new Intl.DateTimeFormat("en-GB", {
 /** Server component: one row per match, newest first. */
 export function MatchesTable({ matches }: { matches: MatchSummary[] }) {
   return (
-    <div className="border bg-card">
+    <div className="panel overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-muted hover:bg-muted">
-            <TableHead className={cn(head, "w-32")}>Date</TableHead>
-            <TableHead className={head}>Fixture</TableHead>
-            <TableHead className={cn(head, "hidden md:table-cell")}>
+          <TableRow>
+            <TableHead className="w-32">Date</TableHead>
+            <TableHead>Fixture</TableHead>
+            <TableHead className="hidden md:table-cell">
               Result
             </TableHead>
-            <TableHead className={cn(head, "hidden text-right sm:table-cell")}>
+            <TableHead className="hidden text-right sm:table-cell">
               Players
             </TableHead>
-            <TableHead className={cn(head, "text-right")}>Runs</TableHead>
+            <TableHead className="text-right">Runs</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -47,14 +45,14 @@ export function MatchesTable({ matches }: { matches: MatchSummary[] }) {
                   {/* The fixture links to the match scorecard. */}
                   <Link
                     href={`/dashboard/matches/${m.id}`}
-                    className="font-medium hover:text-primary"
+                    className="underline-offset-4 hover:underline"
                   >
                     <TeamName name={m.teamA} won={m.winner === m.teamA} />
                     <span className="px-1.5 text-muted-foreground">v</span>
                     <TeamName name={m.teamB} won={m.winner === m.teamB} />
                   </Link>
                   {/* Result moves under the fixture on small screens. */}
-                  <span className="text-xs text-muted-foreground md:hidden">
+                  <span className="text-[13px] text-muted-foreground md:hidden">
                     {resultText(m)}
                   </span>
                 </div>
@@ -79,9 +77,7 @@ export function MatchesTable({ matches }: { matches: MatchSummary[] }) {
 function TeamName({ name, won }: { name: string; won: boolean }) {
   return (
     <span
-      className={cn(
-        won && "text-primary underline decoration-2 underline-offset-4",
-      )}
+      className={cn(won ? "font-semibold" : "font-normal")}
     >
       {name}
     </span>

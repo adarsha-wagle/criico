@@ -14,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
 import {
   createPlayerAction,
   updatePlayerAction,
@@ -22,7 +21,7 @@ import {
 } from "../_actions/players-action";
 import type { TPlayerRole } from "@/lib/validation/player";
 import { PLAYER_ROLES } from "@/config/constant";
-import { ROLE_TEXT } from "@/components/reusables/role-badge";
+import { RoleSwatch } from "@/components/reusables/role-badge";
 
 export interface PlayerFormValues {
   name: string;
@@ -34,11 +33,7 @@ export interface PlayerFormValues {
 }
 
 const NUMBER_FIELDS = [
-  {
-    name: "basePrice",
-    label: "Base price",
-    hint: "Whole number, no currency symbol.",
-  },
+  { name: "basePrice", label: "Base price" },
   { name: "matchesPlayed", label: "Matches played" },
   { name: "totalRuns", label: "Total runs" },
   { name: "totalWickets", label: "Total wickets" },
@@ -128,7 +123,10 @@ export function PlayerForm({
               <SelectContent>
                 {PLAYER_ROLES.map((r) => (
                   <SelectItem key={r} value={r}>
-                    <span className={cn("font-medium", ROLE_TEXT[r])}>{r}</span>
+                    <span className="flex items-center gap-2">
+                      <RoleSwatch role={r} />
+                      {r}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -142,7 +140,6 @@ export function PlayerForm({
             id={f.name}
             label={f.label}
             error={errors?.[f.name]?.[0]}
-            hint={"hint" in f ? f.hint : undefined}
           >
             <Input
               id={f.name}

@@ -18,7 +18,7 @@ export default function MatchesPage() {
     <>
       <PageHeader
         title="Matches"
-        description="Every recorded result. The winning side is underlined."
+        description="Every recorded result, newest first. The winning team is in bold."
         action={
           <Suspense fallback={null}>
             <RecordMatchButton />

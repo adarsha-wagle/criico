@@ -12,7 +12,7 @@ export function RoleFilter({ active }: { active?: TPlayerRole }) {
 
   return (
     <nav aria-label="Filter by role" className="mb-4 overflow-x-auto">
-      <div className="inline-flex border bg-card">
+      <div className="inline-flex gap-1 rounded-md border bg-card p-1">
         {options.map((role) => {
           const isActive = role === active;
           return (
@@ -21,10 +21,10 @@ export function RoleFilter({ active }: { active?: TPlayerRole }) {
               href={role ? `?role=${encodeURIComponent(role)}` : "?"}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "whitespace-nowrap border-r px-3 py-2 text-sm font-medium last:border-r-0",
+                "rounded-sm px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "text-foreground hover:bg-accent hover:text-accent-foreground",
+                  ? "bg-accent text-accent-foreground"
+                  : "text-muted-foreground hover:bg-secondary hover:text-foreground",
               )}
             >
               {role ?? "All roles"}

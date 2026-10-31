@@ -22,7 +22,7 @@ export default function EditPlayerPage({ params }: { params: Params }) {
         title="Edit player"
         description="Changes update the leaderboard immediately."
       />
-      <div className="max-w-2xl border bg-card p-4 sm:p-6">
+      <div className="panel max-w-2xl p-5 sm:p-6">
         <Suspense fallback={<Skeleton className="h-96 w-full" />}>
           <EditPlayer params={params} />
         </Suspense>

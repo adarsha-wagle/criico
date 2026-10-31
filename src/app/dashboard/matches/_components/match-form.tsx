@@ -190,15 +190,10 @@ export function MatchForm({
   return (
     <form onSubmit={onSubmit} noValidate className="grid gap-6">
       {/* Fixture ---------------------------------------------------- */}
-      <section className="border bg-card">
-        <h2 className="border-b px-4 py-3 font-semibold sm:px-6">Fixture</h2>
+      <section className="panel overflow-hidden">
+        <h2 className="border-b px-4 py-3 text-base font-semibold sm:px-6">Fixture</h2>
         <div className="grid gap-5 p-4 sm:grid-cols-2 sm:p-6">
-          <FormField
-            id="teamA"
-            label="Team A"
-            error={errors.teamA?.[0]}
-            hint="Pick an existing team or type a new name."
-          >
+          <FormField id="teamA" label="Team A" error={errors.teamA?.[0]}>
             <Input
               id="teamA"
               list="team-options"
@@ -226,7 +221,6 @@ export function MatchForm({
             id="playedAt"
             label="Date played"
             error={errors.playedAt?.[0]}
-            hint="Leave empty for today."
           >
             <Input
               id="playedAt"
@@ -263,7 +257,7 @@ export function MatchForm({
       {/* Performances ------------------------------------------------ */}
       <section className="grid gap-4">
         <div>
-          <h2 className="font-semibold">Player performances</h2>
+          <h2 className="text-base font-semibold">Player performances</h2>
           <p className="text-sm text-muted-foreground">
             Runs and wickets in this match. Each is added to the player&apos;s
             career totals, and their matches played goes up by one.
@@ -277,17 +271,17 @@ export function MatchForm({
 
         <div className="grid gap-4 lg:grid-cols-2">
           {(["A", "B"] as const).map((side) => (
-            <div key={side} className="border bg-card">
+            <div key={side} className="panel overflow-hidden">
               <div className="flex items-center justify-between border-b px-4 py-3">
                 <h3 className="font-semibold">
                   {side === "A" ? nameA : nameB}
                 </h3>
-                <span className="text-xs text-muted-foreground">
-                  {rows[side].length} players
+                <span className="text-[13px] text-muted-foreground">
+                  {rows[side].length} {rows[side].length === 1 ? "player" : "players"}
                 </span>
               </div>
 
-              <div className="hidden grid-cols-[minmax(0,1fr)_5rem_5rem_2.25rem] gap-2 border-b bg-muted px-4 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground sm:grid">
+              <div className="hidden grid-cols-[minmax(0,1fr)_5.5rem_5.5rem_2.25rem] gap-2 border-b bg-muted px-4 py-2 text-[13px] font-medium text-muted-foreground sm:grid">
                 <span>Player</span>
                 <span>Runs</span>
                 <span>Wickets</span>
@@ -300,7 +294,7 @@ export function MatchForm({
                   return (
                     <li
                       key={row.key}
-                      className="grid grid-cols-[1fr_1fr_2.25rem] gap-2 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_5rem_5rem_2.25rem] sm:items-center"
+                      className="grid grid-cols-[1fr_1fr_2.25rem] gap-2 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_5.5rem_5.5rem_2.25rem] sm:items-center"
                     >
                       <div className="col-span-3 sm:col-span-1">
                         <label htmlFor={`${idBase}-player`} className="sr-only">
@@ -342,7 +336,7 @@ export function MatchForm({
                       <div>
                         <label
                           htmlFor={`${idBase}-runs`}
-                          className="mb-1 block text-xs text-muted-foreground sm:sr-only"
+                          className="mb-1.5 block text-[13px] text-muted-foreground sm:sr-only"
                         >
                           Runs
                         </label>
@@ -361,7 +355,7 @@ export function MatchForm({
                       <div>
                         <label
                           htmlFor={`${idBase}-wkts`}
-                          className="mb-1 block text-xs text-muted-foreground sm:sr-only"
+                          className="mb-1.5 block text-[13px] text-muted-foreground sm:sr-only"
                         >
                           Wickets
                         </label>

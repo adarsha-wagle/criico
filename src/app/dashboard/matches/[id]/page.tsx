@@ -2,7 +2,8 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -14,10 +15,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatNumber } from "@/lib/format";
-import { cn } from "@/lib/utils";
+import { getSession } from "@/lib/jwt";
 import { idParamSchema } from "@/lib/validation/player";
 import { PageHeader } from "@/components/reusables/page-header";
-import { StatCard } from "@/components/reusables/stat-card";
+import { StatCard, StatGrid } from "@/components/reusables/stat-card";
 import { getMatchById, TMatchDetail } from "@/lib/queries/matches";
 import { RoleBadge } from "@/components/reusables/role-badge";
 
@@ -27,11 +28,10 @@ type Params = Promise<{ id: string }>;
 
 const dateFmt = new Intl.DateTimeFormat("en-GB", {
   weekday: "short",
-  day: "2-digit",
+  day: "numeric",
   month: "long",
   year: "numeric",
 });
-const head = "text-xs uppercase tracking-wide";
 
 /** Scorecard for one match: result, standout performances, and both teams' players. */
 export default function MatchPage({ params }: { params: Params }) {
@@ -39,7 +39,7 @@ export default function MatchPage({ params }: { params: Params }) {
     <>
       <Link
         href="/dashboard/matches"
-        className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary underline-offset-4 hover:underline"
+        className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
       >
         <ArrowLeft className="size-4" aria-hidden />
         All matches
@@ -56,39 +56,55 @@ async function MatchContent({ params }: { params: Params }) {
   // A malformed id would make Postgres throw; treat it as "no such match".
   if (!idParamSchema.safeParse(id).success) notFound();
 
-  const match = await getMatchById(id);
+  const [match, session] = await Promise.all([getMatchById(id), getSession()]);
   if (!match) notFound();
+
+  const playerCount =
+    match.teamA.performances.length + match.teamB.performances.length;
 
   return (
     <>
       <PageHeader
         title={`${match.teamA.name} v ${match.teamB.name}`}
-        description={dateFmt.format(match.playedAt)}
+        description={resultSentence(match)}
+        action={
+          session?.role === "admin" && (
+            <Link
+              href={`/dashboard/matches/${match.id}/edit`}
+              className={buttonVariants({ variant: "outline" })}
+            >
+              <Pencil aria-hidden />
+              Edit match
+            </Link>
+          )
+        }
       />
 
       <div className="grid gap-6">
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <StatCard
-            label="Result"
-            value={resultText(match)}
-            hint={statusHint(match)}
-          />
+        <StatGrid>
           <StatCard
             label="Total runs"
             value={formatNumber(match.teamA.runs + match.teamB.runs)}
-            hint={`${match.teamA.runs} and ${match.teamB.runs}`}
+            hint={`${match.teamA.name} ${match.teamA.runs}, ${match.teamB.name} ${match.teamB.runs}`}
           />
           <StatCard
             label="Top scorer"
             value={match.topScorer ? formatNumber(match.topScorer.runs) : "0"}
-            hint={match.topScorer?.name}
+            hint={match.topScorer?.name ?? "No runs recorded"}
           />
           <StatCard
             label="Best bowling"
-            value={match.bestBowler ? `${match.bestBowler.wickets} wkts` : "0"}
-            hint={match.bestBowler?.name}
+            value={
+              match.bestBowler ? `${match.bestBowler.wickets} wickets` : "0"
+            }
+            hint={match.bestBowler?.name ?? "No wickets recorded"}
           />
-        </div>
+          <StatCard
+            label="Players"
+            value={formatNumber(playerCount)}
+            hint="Across both teams"
+          />
+        </StatGrid>
 
         <div className="grid gap-6 lg:grid-cols-2">
           <TeamCard team={match.teamA} />
@@ -101,14 +117,12 @@ async function MatchContent({ params }: { params: Params }) {
 
 function TeamCard({ team }: { team: TMatchDetail["teamA"] }) {
   return (
-    <section className="border bg-card">
-      <div className="flex items-center justify-between border-b px-4 py-3">
-        <h2 className={cn("font-semibold", team.won && "text-primary")}>
-          {team.name}
-        </h2>
+    <section className="panel overflow-hidden">
+      <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
+        <h2 className="font-semibold">{team.name}</h2>
         {team.won && (
-          <span className="border border-primary px-1.5 py-0.5 text-[11px] font-medium uppercase leading-none tracking-wide text-primary">
-            Winner
+          <span className="rounded-sm bg-accent px-2 py-1 text-[13px] leading-none font-medium text-accent-foreground">
+            Won
           </span>
         )}
       </div>
@@ -120,17 +134,17 @@ function TeamCard({ team }: { team: TMatchDetail["teamA"] }) {
       ) : (
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted hover:bg-muted">
-              <TableHead className={head}>Player</TableHead>
-              <TableHead className={cn(head, "text-right")}>Runs</TableHead>
-              <TableHead className={cn(head, "text-right")}>Wickets</TableHead>
+            <TableRow>
+              <TableHead>Player</TableHead>
+              <TableHead className="text-right">Runs</TableHead>
+              <TableHead className="text-right">Wickets</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {team.performances.map((p) => (
               <TableRow key={p.playerId}>
                 <TableCell>
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1.5">
                     <span className="font-medium">{p.name}</span>
                     <RoleBadge role={p.role} className="w-fit" />
                   </div>
@@ -145,7 +159,7 @@ function TeamCard({ team }: { team: TMatchDetail["teamA"] }) {
             ))}
           </TableBody>
           <TableFooter>
-            <TableRow className="bg-muted hover:bg-muted">
+            <TableRow>
               <TableCell className="font-semibold">Total</TableCell>
               <TableCell className="text-right font-semibold">
                 {formatNumber(team.runs)}
@@ -161,32 +175,25 @@ function TeamCard({ team }: { team: TMatchDetail["teamA"] }) {
   );
 }
 
-const resultText = (m: TMatchDetail) =>
-  m.status === "completed" && m.winner
-    ? `${m.winner} won`
-    : m.status === "draw"
-      ? "Draw"
-      : "Not played";
-
-const statusHint = (m: TMatchDetail) =>
-  m.status === "completed"
-    ? "Completed"
-    : m.status === "draw"
-      ? "No winner"
-      : m.status.replace("_", " ");
+/** "Kathmandu Kings won on Sat, 12 October 2026." */
+const resultSentence = (m: TMatchDetail) => {
+  const date = dateFmt.format(m.playedAt);
+  if (m.status === "completed" && m.winner) return `${m.winner} won on ${date}.`;
+  if (m.status === "draw") return `Drawn on ${date}.`;
+  return `Not played yet. Scheduled for ${date}.`;
+};
 
 function MatchSkeleton() {
   return (
     <div className="grid gap-6" aria-busy="true">
-      <Skeleton className="h-14 w-2/3" />
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {Array.from({ length: 4 }, (_, i) => (
-          <Skeleton key={i} className="h-24" />
-        ))}
+      <div className="grid gap-2">
+        <Skeleton className="h-8 w-2/3 max-w-md" />
+        <Skeleton className="h-4 w-60" />
       </div>
+      <Skeleton className="h-28 rounded-lg" />
       <div className="grid gap-6 lg:grid-cols-2">
-        <Skeleton className="h-80" />
-        <Skeleton className="h-80" />
+        <Skeleton className="h-80 rounded-lg" />
+        <Skeleton className="h-80 rounded-lg" />
       </div>
     </div>
   );

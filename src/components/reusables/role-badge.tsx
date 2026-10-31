@@ -3,10 +3,10 @@ import { TPlayerRole } from "@/lib/validation/player";
 
 /** One fixed colour per role, used everywhere a role appears (tables, bars, forms). */
 export const ROLE_TEXT: Record<TPlayerRole, string> = {
-  Batsman: "text-role-batsman border-role-batsman",
-  Bowler: "text-role-bowler border-role-bowler",
-  "All-rounder": "text-role-allrounder border-role-allrounder",
-  Wicketkeeper: "text-role-wicketkeeper border-role-wicketkeeper",
+  Batsman: "text-role-batsman",
+  Bowler: "text-role-bowler",
+  "All-rounder": "text-role-allrounder",
+  Wicketkeeper: "text-role-wicketkeeper",
 };
 
 export const ROLE_FILL: Record<TPlayerRole, string> = {
@@ -16,6 +16,23 @@ export const ROLE_FILL: Record<TPlayerRole, string> = {
   Wicketkeeper: "bg-role-wicketkeeper",
 };
 
+/** Small square in the role's colour. */
+export function RoleSwatch({
+  role,
+  className,
+}: {
+  role: TPlayerRole;
+  className?: string;
+}) {
+  return (
+    <span
+      aria-hidden
+      className={cn("size-2 shrink-0 rounded-[2px]", ROLE_FILL[role], className)}
+    />
+  );
+}
+
+/** Role name with its colour swatch. Quiet enough to sit under a player name. */
 export function RoleBadge({
   role,
   className,
@@ -26,11 +43,11 @@ export function RoleBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center border px-1.5 py-0.5 text-[11px] font-medium uppercase leading-none tracking-wide",
-        ROLE_TEXT[role],
+        "inline-flex items-center gap-1.5 text-[13px] leading-none text-muted-foreground",
         className,
       )}
     >
+      <RoleSwatch role={role} />
       {role}
     </span>
   );

@@ -23,7 +23,7 @@ export default function NewMatchPage() {
         description="Enter both teams, the result and what each player scored."
       />
       {/* cacheComponents: cookie + DB reads must sit inside <Suspense>. */}
-      <Suspense fallback={<Skeleton className="h-[32rem] w-full" />}>
+      <Suspense fallback={<Skeleton className="h-[32rem] w-full rounded-lg" />}>
         <MatchFormLoader />
       </Suspense>
     </>
