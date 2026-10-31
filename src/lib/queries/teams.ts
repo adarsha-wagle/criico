@@ -5,7 +5,13 @@ import { db } from "@/db";
 import { matches, players, teams } from "@/db/schema";
 
 /**
- * Every team with its squad size and record.
+ * The outer row's team id, written as "teams"."id". In a single-table select Drizzle prints
+ * columns without their table, so a bare ${teams.id} inside a subquery reads as the
+ * subquery table's own "id" (players.id / matches.id) and every count comes out 0.
+ */
+const outerTeamId = sql`${teams}.${sql.identifier(teams.id.name)}`;
+
+/**
  * Only finished matches (completed or draw) count towards played / won / drawn / lost.
  */
 export async function listTeams() {
@@ -15,20 +21,20 @@ export async function listTeams() {
       id: teams.id,
       name: teams.name,
       playerCount:
-        sql<number>`(select count(*) from ${players} where ${players.teamId} = ${teams.id})`.mapWith(
+        sql<number>`(select count(*) from ${players} where ${players.teamId} = ${outerTeamId})`.mapWith(
           Number,
         ),
       played: sql<number>`(
         select count(*) from ${matches}
-        where (${matches.teamAId} = ${teams.id} or ${matches.teamBId} = ${teams.id})
+        where (${matches.teamAId} = ${outerTeamId} or ${matches.teamBId} = ${outerTeamId})
           and ${matches.status} in ('completed', 'draw')
       )`.mapWith(Number),
-      won: sql<number>`(select count(*) from ${matches} where ${matches.winnerTeamId} = ${teams.id})`.mapWith(
+      won: sql<number>`(select count(*) from ${matches} where ${matches.winnerTeamId} = ${outerTeamId})`.mapWith(
         Number,
       ),
       drawn: sql<number>`(
         select count(*) from ${matches}
-        where (${matches.teamAId} = ${teams.id} or ${matches.teamBId} = ${teams.id})
+        where (${matches.teamAId} = ${outerTeamId} or ${matches.teamBId} = ${outerTeamId})
           and ${matches.status} = 'draw'
       )`.mapWith(Number),
     })

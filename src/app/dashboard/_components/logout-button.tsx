@@ -1,25 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api-client";
 
+/**
+ * Pending comes from a transition, not useState: with cacheComponents, Next keeps the
+ * dashboard layout's state alive after navigating away, so a `pending = true` flag would
+ * still read "Logging out…" after the next login. A transition resets once the navigation lands.
+ */
 export function LogoutButton() {
   const router = useRouter();
-  const [pending, setPending] = useState(false);
+  const [pending, startTransition] = useTransition();
 
-  async function logout() {
-    setPending(true);
-    const res = await api<null>("/api/auth/logout", { method: "POST" });
-    if (res.isError) {
-      setPending(false);
-      toast.error(res.message);
-      return;
-    }
-    router.replace("/auth/login");
-    router.refresh();
+  function logout() {
+    startTransition(async () => {
+      const res = await api<null>("/api/auth/logout", { method: "POST" });
+      if (res.isError) {
+        toast.error(res.message);
+        return;
+      }
+      router.replace("/auth/login");
+      router.refresh();
+    });
   }
 
   return (

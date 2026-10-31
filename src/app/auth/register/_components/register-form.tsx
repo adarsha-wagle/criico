@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { FormField } from "@/components/reusables/form-field";
@@ -11,34 +11,36 @@ import { FieldErrors } from "@/lib/api";
 
 export function RegisterForm() {
   const router = useRouter();
-  const [pending, setPending] = useState(false);
+  // A transition, not a useState flag: Next keeps this page's state alive after navigating
+  // away, so a flag left true would still show the pending label on the next visit.
+  const [pending, startTransition] = useTransition();
   const [errors, setErrors] = useState<FieldErrors>({});
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setPending(true);
     setErrors({});
-
     const form = new FormData(e.currentTarget);
-    const res = await api<{ user: { name: string } }>("/api/auth/register", {
-      method: "POST",
-      body: JSON.stringify({
-        name: form.get("name"),
-        email: form.get("email"),
-        password: form.get("password"),
-      }),
+
+    startTransition(async () => {
+      const res = await api<{ user: { name: string } }>("/api/auth/register", {
+        method: "POST",
+        body: JSON.stringify({
+          name: form.get("name"),
+          email: form.get("email"),
+          password: form.get("password"),
+        }),
+      });
+
+      if (res.isError) {
+        setErrors(res.errors ?? {});
+        toast.error(res.message);
+        return;
+      }
+
+      toast.success("Account created");
+      router.replace("/dashboard");
+      router.refresh();
     });
-
-    if (res.isError) {
-      setPending(false);
-      setErrors(res.errors ?? {});
-      toast.error(res.message);
-      return;
-    }
-
-    toast.success("Account created");
-    router.replace("/dashboard");
-    router.refresh();
   }
 
   const field = (name: "name" | "email" | "password") => ({

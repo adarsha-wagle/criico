@@ -5,7 +5,6 @@
  *   (or set ADMIN_EMAIL / ADMIN_PASSWORD / ADMIN_NAME in .env and run with no args)
  *
  * Safe to run repeatedly: if the email exists, it's promoted to admin and its password reset.
- * Builds its own Pool because src/db/index.ts imports `server-only`.
  */
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";

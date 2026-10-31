@@ -6,12 +6,6 @@
  *
  * DATA NOTES
  * - Team and player names: 2025 NPL squads (https://en.wikipedia.org/wiki/2025_Nepal_Premier_League).
- * - Roles: our best mapping of each player's usual role; the source only marks wicketkeepers.
- *   Edit any player in the app if a role is off.
- * - Base price, matches, runs and wickets are DEMO NUMBERS, not real statistics.
- *   They are generated from the player's name, so every run produces the same values.
- *
- * Builds its own Pool because src/db/index.ts imports `server-only`.
  */
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";

@@ -2,10 +2,10 @@ import { Suspense } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { connection } from "next/server";
-import { asc } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { Plus } from "lucide-react";
 import { db } from "@/db";
-import { players } from "@/db/schema";
+import { players, teams } from "@/db/schema";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getSession } from "@/lib/jwt";
@@ -54,7 +54,20 @@ async function PlayersList() {
   await connection();
   const [session, rows] = await Promise.all([
     getSession(),
-    db.select().from(players).orderBy(asc(players.name)),
+    db
+      .select({
+        id: players.id,
+        name: players.name,
+        role: players.role,
+        team: teams.name,
+        basePrice: players.basePrice,
+        matchesPlayed: players.matchesPlayed,
+        totalRuns: players.totalRuns,
+        totalWickets: players.totalWickets,
+      })
+      .from(players)
+      .leftJoin(teams, eq(players.teamId, teams.id))
+      .orderBy(asc(players.name)),
   ]);
   const canEdit = session?.role === "admin";
 

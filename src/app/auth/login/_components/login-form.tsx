@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -13,34 +13,36 @@ import { safeRedirect } from "@/lib/utils";
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [pending, setPending] = useState(false);
+  // A transition, not a useState flag: Next keeps this page's state alive after navigating
+  // away, so a flag left true would still show the pending label on the next visit.
+  const [pending, startTransition] = useTransition();
   const [errors, setErrors] = useState<FieldErrors>({});
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setPending(true);
     setErrors({});
-
     const form = new FormData(e.currentTarget);
-    const res = await api<{ user: { name: string } }>("/api/auth/login", {
-      method: "POST",
-      body: JSON.stringify({
-        email: form.get("email"),
-        password: form.get("password"),
-      }),
+
+    startTransition(async () => {
+      const res = await api<{ user: { name: string } }>("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({
+          email: form.get("email"),
+          password: form.get("password"),
+        }),
+      });
+
+      if (res.isError) {
+        setErrors(res.errors ?? {});
+        toast.error(res.message);
+        return;
+      }
+
+      toast.success(`Welcome back, ${res.data.user.name}`);
+      // Back to the page that sent them here, but only if it's on this site.
+      router.replace(safeRedirect(searchParams.get("from")));
+      router.refresh();
     });
-
-    if (res.isError) {
-      setPending(false);
-      setErrors(res.errors ?? {});
-      toast.error(res.message);
-      return;
-    }
-
-    toast.success(`Welcome back, ${res.data.user.name}`);
-    // Back to the page that sent them here, but only if it's on this site.
-    router.replace(safeRedirect(searchParams.get("from")));
-    router.refresh();
   }
 
   return (

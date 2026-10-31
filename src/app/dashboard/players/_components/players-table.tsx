@@ -18,6 +18,8 @@ export interface PlayerRow {
   id: string;
   name: string;
   role: TPlayerRole;
+  /** null when the player isn't assigned to a team. */
+  team: string | null;
   basePrice: number;
   matchesPlayed: number;
   totalRuns: number;
@@ -39,6 +41,7 @@ export function PlayersTable({
         <TableHeader>
           <TableRow>
             <TableHead>Player</TableHead>
+            <TableHead className="hidden lg:table-cell">Team</TableHead>
             <TableHead className="hidden text-right md:table-cell">
               Base price
             </TableHead>
@@ -61,8 +64,20 @@ export function PlayersTable({
               <TableCell>
                 <div className="flex flex-col gap-1.5">
                   <span className="font-medium">{p.name}</span>
+                  {/* Team moves under the name below lg, where its column is hidden. */}
+                  <span className="text-[13px] text-muted-foreground lg:hidden">
+                    {p.team ?? "No team"}
+                  </span>
                   <RoleBadge role={p.role} className="w-fit" />
                 </div>
+              </TableCell>
+              <TableCell
+                className={cn(
+                  "hidden lg:table-cell",
+                  !p.team && "text-muted-foreground",
+                )}
+              >
+                {p.team ?? "No team"}
               </TableCell>
               <TableCell className="hidden text-right md:table-cell">
                 {formatNumber(p.basePrice)}
