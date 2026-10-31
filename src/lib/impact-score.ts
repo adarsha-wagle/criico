@@ -30,7 +30,7 @@ export class InvalidPlayerStatsError extends Error {
     this.name = "InvalidPlayerStatsError";
   }
 }
-
+// Adjusts the impact score based on player experience
 export function experienceAdjustment(matchesPlayed: number): number {
   if (matchesPlayed < ROOKIE_MATCH_LIMIT) return ROOKIE_PENALTY;
   if (matchesPlayed > VETERAN_MATCH_LIMIT) return VETERAN_BONUS;
@@ -42,8 +42,9 @@ const round2 = (n: number) => Math.round(n * 100) / 100;
 export function calculateImpactBreakdown(
   stats: IPlayerStats,
 ): IImpactScoreBreakdown {
+  // valid player stats
   assertValidStats(stats);
-
+  // get rule based on player role
   const rule: IRoleRule = ROLE_RULES[stats.role];
 
   // Role multiplier is applied to the raw stat BEFORE the base weights.
