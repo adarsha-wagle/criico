@@ -184,6 +184,7 @@ export function PlayerForm({
               name={f.name}
               type="number"
               inputMode="numeric"
+              min={0}
               step={1}
               defaultValue={valueOf(f.name)}
               className="tabular-nums"

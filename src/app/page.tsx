@@ -36,14 +36,16 @@ export default function HomePage() {
       </header>
 
       <main className="flex-1">
-        <section className={`${container} grid gap-10 py-12 md:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-14`}>
+        <section
+          className={`${container} grid gap-10 py-12 md:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-14`}
+        >
           <div className="flex flex-col justify-center">
             <h1 className="max-w-[18ch] font-display text-[40px] leading-[1.05] font-semibold tracking-tight sm:text-5xl">
               Player records and match results for local cricket clubs
             </h1>
             <p className="mt-5 max-w-[52ch] text-base leading-relaxed text-muted-foreground">
-              Admins add players and record each match. Every result updates
-              the players&apos; Impact Scores, so selectors can see who is
+              Admins add players and record each match. Every result updates the
+              players&apos; Impact Scores, so selectors can see who is
               contributing to the side.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -69,14 +71,18 @@ export default function HomePage() {
                 Updated with every recorded match
               </span>
             </div>
-            <Suspense fallback={<Skeleton className="h-80 w-full rounded-lg" />}>
+            <Suspense
+              fallback={<Skeleton className="h-80 w-full rounded-lg" />}
+            >
               <TopFive />
             </Suspense>
           </div>
         </section>
 
         <section className="border-t bg-card">
-          <div className={`${container} grid gap-8 py-12 md:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-14`}>
+          <div
+            className={`${container} grid gap-8 py-12 md:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-14`}
+          >
             <div>
               <h2 className="font-display text-[28px] leading-tight font-semibold tracking-tight">
                 How the Impact Score works
@@ -84,8 +90,8 @@ export default function HomePage() {
               <p className="mt-3 max-w-[52ch] text-sm leading-relaxed text-muted-foreground">
                 One number per player, built from career runs, wickets and
                 matches played. The role rules are applied to runs and wickets
-                before the points are added up, then the experience
-                adjustment is applied to the total.
+                before the points are added up, then the experience adjustment
+                is applied to the total.
               </p>
             </div>
             <dl className="panel divide-y overflow-hidden">
@@ -105,7 +111,7 @@ export default function HomePage() {
 
       <footer className="border-t">
         <div className={`${container} py-6 text-sm text-muted-foreground`}>
-          Criico, a club register for local cricket.
+          Criico,
         </div>
       </footer>
     </div>
@@ -141,8 +147,8 @@ async function TopFive() {
   if (entries.length === 0) {
     return (
       <div className="panel p-6 text-sm text-muted-foreground">
-        No players registered yet. The top five appears here once an admin
-        adds players.
+        No players registered yet. The top five appears here once an admin adds
+        players.
       </div>
     );
   }

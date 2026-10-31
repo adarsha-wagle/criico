@@ -17,7 +17,11 @@ import {
 import { FormField } from "@/components/reusables/form-field";
 import { api } from "@/lib/api-client";
 import { TPlayerRole } from "@/lib/validation/player";
-import { TMatchResult, TTeamSide } from "@/lib/validation/matches";
+import {
+  resultMismatch,
+  TMatchResult,
+  TTeamSide,
+} from "@/lib/validation/matches";
 import { FieldErrors } from "@/lib/api";
 import { RoleBadge } from "@/components/reusables/role-badge";
 
@@ -131,6 +135,11 @@ export function MatchForm({
 
   const nameA = team.A ?? "Team A";
   const nameB = team.B ?? "Team B";
+
+  // Blank or half-typed runs count as 0 here; the server still validates each value.
+  const runsOf = (side: TTeamSide) =>
+    rows[side].reduce((sum, r) => sum + (Number(r.runs) || 0), 0);
+  const totalRuns = { A: runsOf("A"), B: runsOf("B") };
   const resultItems = [
     { value: "A", label: `${nameA} won` },
     { value: "B", label: `${nameB} won` },
@@ -174,6 +183,15 @@ export function MatchForm({
 
     if ([...rows.A, ...rows.B].some((r) => !r.playerId)) {
       toast.error("Choose a player in every row, or remove the empty row.");
+      return;
+    }
+
+    // Don't save a result the scorecard contradicts, e.g. "Team A won" with Team B on more runs.
+    const mismatch =
+      result && resultMismatch(result, totalRuns, { A: nameA, B: nameB });
+    if (mismatch) {
+      setErrors({ result: [mismatch] });
+      toast.error(mismatch);
       return;
     }
 
@@ -323,9 +341,13 @@ export function MatchForm({
                 <h3 className="font-semibold">
                   {side === "A" ? nameA : nameB}
                 </h3>
-                <span className="text-[13px] text-muted-foreground">
+                <span className="text-[13px] text-muted-foreground tabular-nums">
                   {rows[side].length}{" "}
-                  {rows[side].length === 1 ? "player" : "players"}
+                  {rows[side].length === 1 ? "player" : "players"} ·{" "}
+                  <span className="font-medium text-foreground">
+                    {totalRuns[side]}
+                  </span>{" "}
+                  {totalRuns[side] === 1 ? "run" : "runs"}
                 </span>
               </div>
 
@@ -401,6 +423,7 @@ export function MatchForm({
                           id={`${idBase}-runs`}
                           type="number"
                           inputMode="numeric"
+                          min={0}
                           step={1}
                           value={row.runs}
                           onChange={(e) =>
@@ -420,6 +443,8 @@ export function MatchForm({
                           id={`${idBase}-wkts`}
                           type="number"
                           inputMode="numeric"
+                          min={0}
+                          max={10}
                           step={1}
                           value={row.wickets}
                           onChange={(e) =>

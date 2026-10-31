@@ -60,6 +60,31 @@ const playedAt = z.preprocess(
     .optional(),
 );
 
+/* Result vs. scorecard ------------------------------------------------ */
+
+/**
+ * The winner is the side with more runs; a draw (tie) needs equal runs. Wickets don't
+ * decide it: a side can lose more wickets and still win. Returns why the chosen result
+ * doesn't fit the runs, or null when it does. Shared by the form (blocks the submit)
+ * and the schema below (so the API refuses it too).
+ */
+export function resultMismatch(
+  result: TMatchResult,
+  runs: Record<TTeamSide, number>,
+  names: Record<TTeamSide, string>,
+): string | null {
+  const score = `${names.A} ${runs.A} – ${runs.B} ${names.B}`;
+  if (result === "draw") {
+    return runs.A === runs.B
+      ? null
+      : `A draw needs both teams on the same runs (${score})`;
+  }
+  const other: TTeamSide = result === "A" ? "B" : "A";
+  return runs[result] > runs[other]
+    ? null
+    : `${names[result]} can't win without scoring more runs (${score})`;
+}
+
 /* Schemas ----------------------------------------------------------- */
 
 export const performanceSchema = z.object({
@@ -133,6 +158,13 @@ export const matchInputSchema = z
           message: `${label} bowlers took ${wickets} wickets; an innings has at most ${MAX_WICKETS_PER_INNINGS}`,
         });
       }
+    }
+
+    const runs = { A: 0, B: 0 };
+    for (const p of m.performances) runs[p.team] += p.runs;
+    const mismatch = resultMismatch(m.result, runs, { A: m.teamA, B: m.teamB });
+    if (mismatch) {
+      ctx.addIssue({ code: "custom", path: ["result"], message: mismatch });
     }
   });
 export type TMatchInput = z.infer<typeof matchInputSchema>;
